@@ -255,7 +255,7 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         panel.add(btnCancel, gbc);
         row++;
 
-        FocusTraversal policy = new FocusTraversal(
+        FocusTraversal traversal = new FocusTraversal(
                 edtName,
                 edtUnit,
                 edtOriginPrice,
@@ -263,9 +263,12 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
                 edtretailMaxNumber,
                 edtWholeScalePrice,
                 edtcategory,
-                edtNote,
-                btnOk
+                edtNote
         );
+        traversal.setListener(() -> {
+            saveItem();
+            dispose();
+        });
 
         btnOk.addKeyListener(new KeyAdapter() {
             @Override
@@ -299,64 +302,6 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         JOptionPane.showMessageDialog(this, message, "Chú ý", JOptionPane.WARNING_MESSAGE);
     }
 
-    public class FocusTraversal {
-
-        private ArrayList<Component> order;
-
-        public FocusTraversal(Component... order) {
-            this.order = new ArrayList<>(Arrays.asList(order));
-            if (order.length > 0) {
-                getDefaultComponent().requestFocusInWindow();
-                for (Component component : order) {
-                    if (component instanceof JTextField) {
-                        ((JTextField) component).addActionListener(actionListener);
-                    } else if (component instanceof JButton) {
-                        ((JButton) component).addActionListener(actionListener);
-                    }
-                }
-            }
-        }
-
-        private ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Component source = (Component) e.getSource();
-                if (source instanceof JTextField) {
-                    Component after = getComponentAfter(source);
-                    after.requestFocus();
-                } else {
-                    saveItem();
-                    dispose();
-                }
-            }
-        };
-
-        public Component getComponentAfter(Component aComponent) {
-            int idx = (order.indexOf(aComponent) + 1) % order.size();
-            return order.get(idx);
-        }
-
-        public Component getComponentBefore(Component aComponent) {
-            int idx = order.indexOf(aComponent) - 1;
-            if (idx < 0) {
-                idx = order.size() - 1;
-            }
-            return order.get(idx);
-        }
-
-        public Component getDefaultComponent() {
-            return order.get(0);
-        }
-
-        public Component getLastComponent() {
-            return order.size() > 0 ? order.get(order.size()) : null;
-        }
-
-        public Component getFirstComponent() {
-            return order.get(0);
-        }
-    }
-    
     private void saveItem(){
             item = new Item();
             item.setId(barcode);

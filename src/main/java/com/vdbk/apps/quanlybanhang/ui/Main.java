@@ -5,6 +5,7 @@
  */
 package com.vdbk.apps.quanlybanhang.ui;
 
+import com.vdbk.apps.quanlybanhang.bill.BillPanel;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;

@@ -3,12 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vdbk.apps.quanlybanhang.ui;
+package com.vdbk.apps.quanlybanhang.bill;
 
+import com.vdbk.apps.quanlybanhang.bill.NewBillItem;
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
 import com.vdbk.apps.quanlybanhang.barcode.BarcodeReader;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager;
 import com.vdbk.apps.quanlybanhang.database.Item;
+import com.vdbk.apps.quanlybanhang.ui.Constants;
+import com.vdbk.apps.quanlybanhang.ui.ItemDetailDialog;
+import com.vdbk.apps.quanlybanhang.ui.JMultilineLabel;
+import com.vdbk.apps.quanlybanhang.ui.JTableButton;
 import java.awt.Frame;
 import static java.awt.GridBagConstraints.BOTH;
 import java.awt.Point;
@@ -293,7 +298,13 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         btnAddNewItem.setText("THÊM HÀNG MỚI");
         btnAddNewItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                
+                TmpBillItemDialog dialog = new TmpBillItemDialog(parent,"",0);
+                BillItem billItem = dialog.run();
+                if (billItem != null) {
+                    billItems.add(billItem);
+                    DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
+                    model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(), billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                }
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -547,26 +558,27 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         }
         int index = getItemInBill(item.getId());
         if (index >= 0) {//update exist item
-            BillItem billItem = billItems.get(index);
+            NewBillItem billItem = (NewBillItem) billItems.get(index);
             //show dialog
             BillItemDialog dialog = new BillItemDialog(parent, billItem);
             BillItem editedItem = dialog.run();
             if (editedItem != null) {//edited item
                 //update item
-                billItems.get(index).updateTotalAmount(editedItem.getTotalAmount());
-                tableBill.setValueAt(billItems.get(index).getAmount(), index, 1);
+                billItems.remove(index);
+                billItems.add(index, editedItem);
+                tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
                 tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
-                tableBill.setValueAt(billItems.get(index).getTotalAmount(), index, 4);
+                tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
             }
         } else { //add new item to bill
-            BillItem billItem = new BillItem(item);
+            NewBillItem billItem = new NewBillItem(item);
             BillItemDialog dialog = new BillItemDialog(parent, billItem);
             BillItem editedItem = dialog.run();
             if (editedItem != null) {//edited item
                 //add item to arraylist & jtable
                 billItems.add(editedItem);
                 DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
-                model.addRow(new Object[]{item.getName(), editedItem.getAmount(), editedItem.getNumber(), item.getUnit(), editedItem.getTotalAmount()});
+                model.addRow(new Object[]{editedItem.getName(), editedItem.getUnitPrice(), editedItem.getNumber(), editedItem.getUnit(), editedItem.getTotalPrice()});
             }
         }
     }
@@ -574,15 +586,25 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     private void editItemInBillTable(int row) {
         BillItem billItem = billItems.get(row);
         //show dialog
-        BillItemDialog dialog = new BillItemDialog(parent, billItem);
-        BillItem editedItem = dialog.run();
-        if (editedItem != null) {//edited item
-            //update item
-            billItems.get(row).updateTotalAmount(editedItem.getTotalAmount());
-            tableBill.setValueAt(billItems.get(row).getAmount(), row, 1);
-            tableBill.setValueAt(billItems.get(row).getNumber(), row, 2);
-            tableBill.setValueAt(billItems.get(row).getTotalAmount(), row, 4);
+        BillItem editedItem = null;
+        if (billItem instanceof NewBillItem) {
+            BillItemDialog dialog = new BillItemDialog(parent, (NewBillItem) billItem);
+            editedItem = dialog.run();
+        }else {
+            TmpBillItemDialog dialog = new TmpBillItemDialog(parent,billItem.getName(),billItem.getTotalPrice());
+            editedItem = dialog.run();
+            
         }
+        if (editedItem != null) {//edited item
+                //update item
+                //billItems.get(row).updateTotalAmount(editedItem.getTotalAmount());
+                billItems.remove(row);
+                billItems.add(row, editedItem);
+                tableBill.setValueAt(billItems.get(row).getName(), row, 0);
+                tableBill.setValueAt(billItems.get(row).getUnitPrice(), row, 1);
+                tableBill.setValueAt(billItems.get(row).getNumber(), row, 2);
+                tableBill.setValueAt(billItems.get(row).getTotalPrice(), row, 4);
+            }
     }
 
     private void createNewBill() {
@@ -616,29 +638,29 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
             //check item in bill
             int index = getItemInBill(barcode);
             if (index >= 0) {//item existed in bill
-                float currentNumber = billItems.get(index).getNumber();
-                billItems.get(index).updateNumber(currentNumber + 1);
-                tableBill.setValueAt(billItems.get(index).getAmount(), index, 1);
-                tableBill.setValueAt(billItems.get(index).getTotalAmount(), index, 4);
+                NewBillItem billitem = (NewBillItem)(billItems.get(index));
+                float currentNumber = billitem.getNumber();
+                billitem.updateNumber(currentNumber + 1);
+                tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
                 tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
-
+                tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
             } else {//new item
-                BillItem billItem = new BillItem(item);
+                NewBillItem billItem = new NewBillItem(item);
                 billItems.add(billItem);
                 DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
-                model.addRow(new Object[]{billItem.getItem().getName(), billItem.getAmount(),
-                    billItem.getNumber(), billItem.getItem().getUnit(), billItem.getTotalAmount()});
+                model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                    billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
             }
         } else {
             ItemDetailDialog dialog = new ItemDetailDialog(parent, barcode);
             Item ret = dialog.run();
             if (ret != null) {
                 dataBaseManager.insertItem(ret);
-                BillItem billItem = new BillItem(ret);
+                NewBillItem billItem = new NewBillItem(ret);
                 billItems.add(billItem);
                 DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
-                model.addRow(new Object[]{billItem.getItem().getName(), billItem.getAmount(),
-                    billItem.getNumber(), billItem.getItem().getUnit(), billItem.getTotalAmount()});
+                model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                    billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
             }
         }
 
@@ -651,7 +673,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
 
         double totalAmount = 0;
         for (BillItem item : billItems) {
-            totalAmount += item.getTotalAmount();
+            totalAmount += item.getTotalPrice();
         }
         tvTotalBill.setText(currencyVN.format(Math.ceil(totalAmount)));
         //calculate discount
@@ -675,7 +697,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     private int getItemInBill(String barcode) {
         int index = -1;
         for (int i = 0; i < billItems.size(); i++) {
-            if (billItems.get(i).getItem().getId().equals(barcode)) {
+            if (billItems.get(i).getId().equals(barcode)) {
                 index = i;
                 break;
             }
@@ -705,7 +727,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                     depotItems.add(i, updatedItem);
                     DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
                     model.setValueAt(updatedItem.getName(), i, 0);
-//                    model.setValueAt(updatedItem.getRetailPrice(), i, 1);
+                    model.setValueAt(updatedItem.getRetailPrice(), i, 1);
                     break;
                 }
             }
@@ -713,13 +735,12 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         //update item in bill table
         int index = getItemInBill(updatedItem.getId());
         if (index >= 0) {
-            BillItem billItem = billItems.get(index);
-            billItem.updateItem(updatedItem);
-            tableBill.setValueAt(billItems.get(index).getItem().getName(), index, 0);
-            tableBill.setValueAt(billItems.get(index).getItem().getRetailPrice(), index, 1);
+           ((NewBillItem) billItems.get(index)).updateItem(updatedItem);
+            tableBill.setValueAt(billItems.get(index).getName(), index, 0);
+            tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
             tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
-            tableBill.setValueAt(billItems.get(index).getItem().getUnit(), index, 3);
-            tableBill.setValueAt(billItems.get(index).getTotalAmount(), index, 4);
+            tableBill.setValueAt(billItems.get(index).getUnit(), index, 3);
+            tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
         }
     }
 

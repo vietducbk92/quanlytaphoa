@@ -3,9 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vdbk.apps.quanlybanhang.ui;
+package com.vdbk.apps.quanlybanhang.bill;
 
+import com.vdbk.apps.quanlybanhang.bill.NewBillItem;
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
+import com.vdbk.apps.quanlybanhang.ui.Constants;
+import com.vdbk.apps.quanlybanhang.ui.JMultilineLabel;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,21 +31,23 @@ import javax.swing.event.DocumentListener;
  *
  * @author vietd
  */
+//show khi thêm hàng không có mã vạch vào kho
+//hoặc là show khi double click vào hàng trong hóa đơn để sửa số lượng/giá bán
 public class BillItemDialog extends JDialog implements ActionListener {
 
     private static String TITLE = "SẢN PHẨM";
-    private BillItem billItem;
+    private NewBillItem billItem;
     private BillItem outBillItem;
     private String barcode;
     private JLabel tvName;//ten
     private JLabel tvPrice;
     private JMultilineLabel tvNote;
     private JTextField edtNumber;
-    private JTextField edtTotalAmount;
+    private JTextField edtTotalPrice;
     private JButton btnOk;
     private JButton btnCancel;
 
-    public BillItemDialog(JFrame parent, BillItem item) {
+    public BillItemDialog(JFrame parent, NewBillItem item) {
         super(parent, TITLE, true);
         if (item == null) {
             return;
@@ -79,12 +84,12 @@ public class BillItemDialog extends JDialog implements ActionListener {
                 billItem.updateNumber(number);
                 Locale localeVN = new Locale("vi", "VN");
                 NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
-                tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(item.getAmount()) + "/" + billItem.getItem().getUnit());
-                edtTotalAmount.setText(Utils.fmt(billItem.getTotalAmount()));
+                tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(item.getUnitPrice()) + "/" + billItem.getUnit());
+                edtTotalPrice.setText(Utils.fmt(billItem.getTotalPrice()));
             }
         });
 
-        edtTotalAmount.getDocument().addDocumentListener(new DocumentListener() {
+        edtTotalPrice.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
                 warn();
             }
@@ -98,18 +103,18 @@ public class BillItemDialog extends JDialog implements ActionListener {
             }
 
             public void warn() {
-                if (!edtTotalAmount.isFocusOwner()) {
+                if (!edtTotalPrice.isFocusOwner()) {
                     return;
                 }
-                if (edtTotalAmount.getText().isEmpty()) {
+                if (edtTotalPrice.getText().isEmpty()) {
                     return;
                 }
                
-                double amount = Double.parseDouble(edtTotalAmount.getText());
-                billItem.updateTotalAmount(amount);
+                double totalPrice = Double.parseDouble(edtTotalPrice.getText());
+                billItem.updateTotalPrice(totalPrice);
                 Locale localeVN = new Locale("vi", "VN");
                 NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
-                tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(item.getAmount()) + "/" + billItem.getItem().getUnit());
+                tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(item.getUnitPrice()) + "/" + billItem.getUnit());
                 //edtNumber.setText(billItem.getNumber() + "");
                 edtNumber.setText(Utils.fmt(billItem.getNumber()));
             }
@@ -165,7 +170,7 @@ public class BillItemDialog extends JDialog implements ActionListener {
         gbc.gridy = 3;
         gbc.gridwidth = 1;
         panel.add(edtNumber, gbc);
-        label = new JLabel(billItem.getItem().getUnit());
+        label = new JLabel(billItem.getUnit());
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 2;
@@ -181,14 +186,14 @@ public class BillItemDialog extends JDialog implements ActionListener {
         gbc.gridy = 4;
         gbc.gridwidth = 1;
         panel.add(label, gbc);
-        edtTotalAmount = new JTextField("", 9);
-        edtTotalAmount.setFont(Constants.FONT_CONTENT);
+        edtTotalPrice = new JTextField("", 9);
+        edtTotalPrice.setFont(Constants.FONT_CONTENT);
 
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 1;
         gbc.gridy = 4;
         gbc.gridwidth = 1;
-        panel.add(edtTotalAmount, gbc);
+        panel.add(edtTotalPrice, gbc);
         label = new JLabel("VND");
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -198,16 +203,16 @@ public class BillItemDialog extends JDialog implements ActionListener {
         panel.add(label, gbc);
 
         //fill item data to UI
-        barcode = billItem.getItem().getId();
-        tvName.setText(billItem.getItem().getName());
+        barcode = billItem.getId();
+        tvName.setText(billItem.getName());
 
         Locale localeVN = new Locale("vi", "VN");
         NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
-        tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(billItem.getAmount()) + "/" + billItem.getItem().getUnit());
-        tvNote.setText(billItem.getItem().getNote());
+        tvPrice.setText("ĐƠN GIÁ: " + currencyVN.format(billItem.getUnitPrice()) + "/" + billItem.getUnit());
+        tvNote.setText(billItem.getNote());
         
         edtNumber.setText(Utils.fmt(billItem.getNumber()));
-        edtTotalAmount.setText(Utils.fmt(billItem.getTotalAmount()));;
+        edtTotalPrice.setText(Utils.fmt(billItem.getTotalPrice()));;
 
         //button
         JLabel spacer = new JLabel(" ");
