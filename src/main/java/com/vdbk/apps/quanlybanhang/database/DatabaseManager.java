@@ -107,15 +107,25 @@ public class DatabaseManager {
         }
     }
 
-    public ArrayList<Item> getItems(String code){
+    public ArrayList<Item> getItems(String code) {
         ArrayList items = new ArrayList<Item>();
         FindIterable<org.bson.Document> iterDoc = depotCollection.find(Filters.regex("_id", code));
         Iterator<org.bson.Document> it = iterDoc.iterator();
-        
+
         while (it.hasNext()) {
             items.add(new Item(it.next()));
         }
         return items;
+    }
+
+    public Item getItem(String code) {
+        FindIterable<org.bson.Document> iterDoc = depotCollection.find(Filters.regex("_id", code));
+        Iterator<org.bson.Document> it = iterDoc.iterator();
+
+        while (it.hasNext()) {
+            return new Item(it.next());
+        }
+        return null;
     }
 
     public void insertItem(Item item) {
@@ -126,7 +136,7 @@ public class DatabaseManager {
         }
     }
 
-    public void update(Item newItem) {    
+    public void update(Item newItem) {
         Bson updateOperationDocument = new Document("$set", newItem.convertToDocumentWithoutId());
         depotCollection.updateOne(Filters.eq(Item.KEY_ID, newItem.getId()), updateOperationDocument);
         for (DatabaseListener listener : listeners) {

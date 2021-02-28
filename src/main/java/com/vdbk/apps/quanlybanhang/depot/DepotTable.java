@@ -74,9 +74,9 @@ public class DepotTable extends javax.swing.JPanel {
 
         public void onItemSelected(Item item);//mouse clicked
 
-        public void onItemEntered(Item item);// mouse double clicked
+        public void onItemEntered(String id);// mouse double clicked
 
-        public void onDeleteItemClicked(Item item);
+        public void onDeleteItemClicked(String id);
     }
 
     /**
@@ -84,18 +84,20 @@ public class DepotTable extends javax.swing.JPanel {
      */
     public DepotTable() {
         initComponents();
-        jTable1.getColumnModel().getColumn(0).setMaxWidth(Constants.ITEM_INDEX_WIDTH);//stt
-        jTable1.getColumnModel().getColumn(0).setMinWidth(Constants.ITEM_INDEX_WIDTH);
-        jTable1.getColumnModel().getColumn(1).setMaxWidth(Constants.ITEM_NAME_WIDTH);//ten hang
-        jTable1.getColumnModel().getColumn(1).setMinWidth(Constants.ITEM_NAME_WIDTH);
-        jTable1.getColumnModel().getColumn(2).setMaxWidth(Constants.ITEM_PRICE_WIDTH * 2);//gia si
-        jTable1.getColumnModel().getColumn(2).setMinWidth(Constants.ITEM_PRICE_WIDTH * 2);
-        jTable1.getColumnModel().getColumn(3).setMaxWidth(Constants.ITEM_PRICE_WIDTH);//gia le
-        jTable1.getColumnModel().getColumn(3).setMinWidth(Constants.ITEM_PRICE_WIDTH);
-        jTable1.getColumnModel().getColumn(4).setMaxWidth(Constants.ITEM_UNIT_WIDTH);//don vi
-        jTable1.getColumnModel().getColumn(4).setMinWidth(Constants.ITEM_UNIT_WIDTH);
-        jTable1.getColumnModel().getColumn(6).setMaxWidth(Constants.ITEM_BTN_DEL_WIDTH);//delete
-        jTable1.getColumnModel().getColumn(6).setMinWidth(Constants.ITEM_BTN_DEL_WIDTH);
+        jTable1.getColumnModel().getColumn(0).setMaxWidth(0);//stt
+        jTable1.getColumnModel().getColumn(0).setMinWidth(0);
+        jTable1.getColumnModel().getColumn(1).setMaxWidth(Constants.ITEM_INDEX_WIDTH);//stt
+        jTable1.getColumnModel().getColumn(1).setMinWidth(Constants.ITEM_INDEX_WIDTH);
+        jTable1.getColumnModel().getColumn(2).setMaxWidth(Constants.ITEM_NAME_WIDTH);//ten hang
+        jTable1.getColumnModel().getColumn(2).setMinWidth(Constants.ITEM_NAME_WIDTH);
+        jTable1.getColumnModel().getColumn(3).setMaxWidth(Constants.ITEM_PRICE_WIDTH * 2);//gia si
+        jTable1.getColumnModel().getColumn(3).setMinWidth(Constants.ITEM_PRICE_WIDTH * 2);
+        jTable1.getColumnModel().getColumn(4).setMaxWidth(Constants.ITEM_PRICE_WIDTH);//gia le
+        jTable1.getColumnModel().getColumn(4).setMinWidth(Constants.ITEM_PRICE_WIDTH);
+        jTable1.getColumnModel().getColumn(5).setMaxWidth(Constants.ITEM_UNIT_WIDTH);//don vi
+        jTable1.getColumnModel().getColumn(5).setMinWidth(Constants.ITEM_UNIT_WIDTH);
+        jTable1.getColumnModel().getColumn(7).setMaxWidth(Constants.ITEM_BTN_DEL_WIDTH);//delete
+        jTable1.getColumnModel().getColumn(7).setMinWidth(Constants.ITEM_BTN_DEL_WIDTH);
         jTable1.getTableHeader().setFont(Constants.FONT_CONTENT);
         jTable1.setFont(Constants.FONT_CONTENT);
         jTable1.setShowGrid(true);
@@ -128,10 +130,11 @@ public class DepotTable extends javax.swing.JPanel {
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "STT", "TÊN HÀNG", "GIÁ BÁN SỈ", "GIÁ BÁN LẺ", "ĐƠN VỊ", "GHI CHÚ", ""
+                   "", "STT", "TÊN HÀNG", "GIÁ BÁN SỈ", "GIÁ BÁN LẺ", "ĐƠN VỊ", "GHI CHÚ", ""
                 }
         ) {
             Class[] types = new Class[]{
+                java.lang.String.class,
                 java.lang.Integer.class,
                 java.lang.String.class,
                 java.lang.String.class,
@@ -141,21 +144,18 @@ public class DepotTable extends javax.swing.JPanel {
                 java.lang.Object.class
 
             };
-            boolean[] canEdit = new boolean[]{
-                false, false, false, false, false, false, false
-            };
 
             public Class getColumnClass(int columnIndex) {
                 return types[columnIndex];
             }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
+                return false;
             }
 
             @Override
             public Object getValueAt(int row, int column) {
-                if (column == 6) {
+                if (column == 7) {
                     JButton button = new JButton("");
                     button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/clear_24.png"))); // NOI18N
 
@@ -163,7 +163,7 @@ public class DepotTable extends javax.swing.JPanel {
                         public void actionPerformed(ActionEvent arg0) {
                             //delete row bill item
                             Item item = items.get(row);
-                            listener.onDeleteItemClicked(item);
+                            listener.onDeleteItemClicked(item.getId());
                         }
                     });
                     return button;
@@ -173,7 +173,7 @@ public class DepotTable extends javax.swing.JPanel {
             }
 
         });
-        jTable1.getColumnModel().getColumn(6).setCellRenderer(new JTableButton.JTableButtonRenderer());
+        jTable1.getColumnModel().getColumn(7).setCellRenderer(new JTableButton.JTableButtonRenderer());
         //jTable1.addMouseListener(new JTableButton.JTableButtonMouseListener(jTable1));
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jTable1.setGridColor(new java.awt.Color(0, 0, 0));
@@ -236,12 +236,13 @@ public class DepotTable extends javax.swing.JPanel {
             return;
         }
 
-        Item item = items.get(table.getSelectedRow());
+       // Item item = items.get(table.getSelectedRow());
 
         if (evt.getClickCount() == 2) {
-            listener.onItemEntered(item);
+            String id = (String) jTable1.getValueAt(row, 0);
+            listener.onItemEntered(id);
         } else {
-            listener.onItemSelected(item);
+            listener.onItemSelected(null);
         }
     }
 
@@ -255,7 +256,7 @@ public class DepotTable extends javax.swing.JPanel {
         if (item.getRetailMaxNumber() > 0) {
             wsInformation = Utils.fmt(item.getWholeScalePrice()) + " / " + item.getRetailMaxNumber() + item.getUnit();
         }
-        model.addRow(new Object[]{itemCount, item.getName(), wsInformation, item.getRetailPrice(), item.getUnit(), item.getNote()});
+        model.addRow(new Object[]{item.getId(),itemCount, item.getName(), wsInformation, item.getRetailPrice(), item.getUnit(), item.getNote()});
         items.add(item);
     }
 

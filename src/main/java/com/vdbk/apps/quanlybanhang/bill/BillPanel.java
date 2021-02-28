@@ -77,7 +77,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                     return;
                 }
                 DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
-                model.addRow(new Object[]{item.getName(), item.getRetailPrice()});
+                model.addRow(new Object[]{item.getId(),item.getName(), item.getRetailPrice()});
                 depotItems.add(item);
             }
         });
@@ -98,7 +98,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                                 return;
                             }
                             DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
-                            model.addRow(new Object[]{item.getName(), item.getRetailPrice()});
+                            model.addRow(new Object[]{item.getId(),item.getName(), item.getRetailPrice()});
                             depotItems.add(item);
                         }
                     });
@@ -110,7 +110,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                                 return;
                             }
                             DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
-                            model.addRow(new Object[]{item.getName(), item.getRetailPrice()});
+                            model.addRow(new Object[]{item.getId(),item.getName(), item.getRetailPrice()});
                             depotItems.add(item);
                         }
                     });
@@ -127,8 +127,10 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 if (table.getSelectedRow() < 0) {
                     return;
                 }
-                Item item = depotItems.get(table.getSelectedRow());
+                
                 if (evt.getClickCount() == 2) {//double click
+                    String barcode = (String) table.getValueAt(row, 0);
+                    Item item =  dataBaseManager.getItem(barcode);
                     addItemToBillTable(item);
                 }
             }
@@ -509,11 +511,11 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableDepot.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "SẢN PHẨM", "ĐƠN GIÁ"
+                    "", "SẢN PHẨM", "ĐƠN GIÁ"
                 }
         ) {
             Class[] types = new Class[]{
-                java.lang.String.class, java.lang.Double.class
+                java.lang.String.class, java.lang.String.class, java.lang.Double.class
             };
 
             @Override
@@ -531,10 +533,13 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableDepot.setFont(Constants.FONT_CONTENT);
         tableDepot.setShowGrid(true);
         tableDepot.getTableHeader().setReorderingAllowed(false);
-        tableDepot.getColumnModel().getColumn(0).setMaxWidth(Constants.ITEM_NAME_WIDTH);
-        tableDepot.getColumnModel().getColumn(0).setMinWidth(Constants.ITEM_NAME_WIDTH);
-        tableDepot.getColumnModel().getColumn(0).setMaxWidth(Constants.ITEM_PRICE_WIDTH);
-        tableDepot.getColumnModel().getColumn(0).setMinWidth(Constants.ITEM_PRICE_WIDTH);
+        //hide column barcode
+        tableDepot.getColumnModel().getColumn(0).setMaxWidth(0);
+        tableDepot.getColumnModel().getColumn(0).setMinWidth(0);
+        tableDepot.getColumnModel().getColumn(1).setMaxWidth(Constants.ITEM_NAME_WIDTH);
+        tableDepot.getColumnModel().getColumn(1).setMinWidth(Constants.ITEM_NAME_WIDTH);
+        tableDepot.getColumnModel().getColumn(2).setMaxWidth(Constants.ITEM_PRICE_WIDTH);
+        tableDepot.getColumnModel().getColumn(2).setMinWidth(Constants.ITEM_PRICE_WIDTH);
         jScrollPane3.setPreferredSize(new java.awt.Dimension(320, 45));
         jScrollPane3.setMinimumSize(new java.awt.Dimension(320, 45));
         jScrollPane3.setViewportView(tableDepot);

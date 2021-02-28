@@ -94,14 +94,18 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
             }
 
             @Override
-            public void onItemEntered(Item item) {
-                updateItem(item, false);
+            public void onItemEntered(String id) {
+                Item item = databaseManager.getItem(id);
+                if(item != null)
+                    updateItem(item, false);
 
             }
 
             @Override
-            public void onDeleteItemClicked(Item item) {
-                deleteItem(item);
+            public void onDeleteItemClicked(String id) {
+                Item item = databaseManager.getItem(id);
+                if(item != null)
+                    deleteItem(item);
             }
         });
 
