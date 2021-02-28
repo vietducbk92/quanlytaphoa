@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vdbk.apps.quanlybanhang.ui;
+package com.vdbk.apps.quanlybanhang.depot;
 
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
 import com.vdbk.apps.quanlybanhang.database.Item;
+import com.vdbk.apps.quanlybanhang.ui.Constants;
+import com.vdbk.apps.quanlybanhang.ui.JTableButton;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;

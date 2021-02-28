@@ -13,8 +13,18 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.WriteResult;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import org.bson.BsonDocument;
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.conversions.Bson;
 
 /**
  *
@@ -47,14 +57,14 @@ public class DatabaseManager {
     }
 
     private MongoClient mongoClient;
-    private DB sellManagerDB;
-    private DBCollection depotCollection;
+    private MongoDatabase sellManagerDB;
+    private MongoCollection<Document> depotCollection;
     private static String SELL_MANAGER_DB = "SellManagerDB";
     private static String DEPOT_COLLECTION = "depot";
 
     private DatabaseManager() throws UnknownHostException {
         mongoClient = MongoUtils.getMongoClient();
-        sellManagerDB = mongoClient.getDB(SELL_MANAGER_DB);
+        sellManagerDB = mongoClient.getDatabase(SELL_MANAGER_DB);
         depotCollection = sellManagerDB.getCollection(DEPOT_COLLECTION);
     }
 
@@ -71,70 +81,61 @@ public class DatabaseManager {
     }
 
     public void getAllItems(ItemAvailableListener listener) {
-        DBCursor cursor = depotCollection.find();
-        while (cursor.hasNext()) {
-            DBObject obj = cursor.next();
+        FindIterable<Document> iterDoc = depotCollection.find();
+        Iterator<Document> it = iterDoc.iterator();
+        while (it.hasNext()) {
+            Document obj = it.next();
             listener.onItemAvailable(new Item(obj));
         }
     }
 
     public void getAllNonBarcodeItems(ItemAvailableListener listener) {
-        BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
-        whereBuilder.append(Item.KEY_HAS_BARCODE, 0);
-        DBObject where = whereBuilder.get();
-        DBCursor cursor = depotCollection.find(where);
-        while (cursor.hasNext()) {
-            DBObject obj = cursor.next();
+        FindIterable<Document> iterDoc = depotCollection.find(Filters.eq(Item.KEY_HAS_BARCODE, 0));
+        Iterator<Document> it = iterDoc.iterator();
+        while (it.hasNext()) {
+            Document obj = it.next();
             listener.onItemAvailable(new Item(obj));
         }
     }
 
     public void getAllItemsInCategory(String category, ItemAvailableListener listener) {
-        BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
-        whereBuilder.append(Item.KEY_CATEGORY, category);
-        DBObject where = whereBuilder.get();
-        DBCursor cursor = depotCollection.find(where);
-        while (cursor.hasNext()) {
-            DBObject obj = cursor.next();
+        FindIterable<Document> iterDoc = depotCollection.find(Filters.eq(Item.KEY_CATEGORY, category));
+        Iterator<Document> it = iterDoc.iterator();
+        while (it.hasNext()) {
+            Document obj = it.next();
             listener.onItemAvailable(new Item(obj));
         }
     }
 
-    public Item getItem(String code) {
-        BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
-        whereBuilder.append(Item.KEY_ID, code);
-        DBObject where = whereBuilder.get();
-        DBCursor cursor = depotCollection.find(where);
-        while (cursor.hasNext()) {
-            DBObject obj = cursor.next();
-            return new Item(obj);
+    public ArrayList<Item> getItems(String code){
+        ArrayList items = new ArrayList<Item>();
+        FindIterable<org.bson.Document> iterDoc = depotCollection.find(Filters.regex("_id", code));
+        Iterator<org.bson.Document> it = iterDoc.iterator();
+        
+        while (it.hasNext()) {
+            items.add(new Item(it.next()));
         }
-        return null;
+        return items;
     }
 
     public void insertItem(Item item) {
-        BasicDBObject obj = item.convertToDBOject();
-        depotCollection.insert(obj);
+        Document obj = item.convertToDocument();
+        depotCollection.insertOne(obj);
         for (DatabaseListener listener : listeners) {
             listener.onNewItemInserted(item);
         }
     }
 
-    public void update(Item newItem) {
-        BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
-        whereBuilder.append(Item.KEY_ID, newItem.getId());
-        DBObject where = whereBuilder.get();
-        WriteResult result = depotCollection.update(where, newItem.convertToDBOject());
+    public void update(Item newItem) {    
+        Bson updateOperationDocument = new Document("$set", newItem.convertToDocumentWithoutId());
+        depotCollection.updateOne(Filters.eq(Item.KEY_ID, newItem.getId()), updateOperationDocument);
         for (DatabaseListener listener : listeners) {
             listener.onItemUpdated(newItem);
         }
     }
 
     public void deleteItem(String code) {
-        BasicDBObjectBuilder whereBuilder = BasicDBObjectBuilder.start();
-        whereBuilder.append(Item.KEY_ID, code);
-        DBObject where = whereBuilder.get();
-        WriteResult result = depotCollection.remove(where);
+        depotCollection.deleteOne(Filters.eq(Item.KEY_ID, code));
         for (DatabaseListener listener : listeners) {
             listener.onItemDeleted(code);
         }

@@ -41,9 +41,13 @@ public class Test {
         float c = number - b * a;
        
         System.out.println("start print");
-        printToPrinter();
+    //    printToPrinter();
+    
+        String test = "abc_123";
+        String test2 = "abc";
        
-        System.out.println("end print");
+        System.out.println("end print"+test.split("_")[0]);
+        System.out.println("end print"+test2.split("_")[0]);
     }
 
     public static String fmt(float d) {

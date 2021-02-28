@@ -3,10 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vdbk.apps.quanlybanhang.ui;
+package com.vdbk.apps.quanlybanhang.depot;
 
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
 import com.vdbk.apps.quanlybanhang.database.Item;
+import com.vdbk.apps.quanlybanhang.ui.Constants;
+import com.vdbk.apps.quanlybanhang.ui.FocusTraversal;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.FocusTraversalPolicy;
@@ -57,34 +59,40 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
     private JTextField edtUnit;
     private JButton btnOk;
     private JButton btnCancel;
+    private JButton btnAddNewItemWithBarcode;
     private boolean hasBarcode = false;
+    private JFrame parent;
+    private boolean updateByBarcodeReader = false;
+    private ItemDialogResult result = null;
 
     public ItemDetailDialog(JFrame parent, String barcode) {
-        super(parent, ADD_ITEM_TITLE+(barcode == null?"":"-"+barcode), true);
-        hasBarcode = barcode != null;
+        super(parent, ADD_ITEM_TITLE + (barcode == null ? "" : "-" + barcode), true);
+        hasBarcode = (barcode != null);
         //barcode 
         if (!hasBarcode) {
             this.barcode = System.currentTimeMillis() + "";
         } else {
             this.barcode = barcode;
         }
+        this.parent = parent;
         addComponentToDialog();
         Point loc = parent.getLocation();
         setLocation(loc.x + parent.getWidth() / 2 - getWidth() / 2, loc.y + parent.getHeight() / 2 - getHeight() / 2);
 
     }
 
-    public ItemDetailDialog(JFrame parent, Item item) {
-        super(parent, UPDATE_ITEM_TITLE+((item != null && item.hasBarCode())?"-"+item.getId():""), true);
+    public ItemDetailDialog(JFrame parent, Item item, boolean updateByBarcodeReader) {
+        super(parent, UPDATE_ITEM_TITLE + ((item != null && item.hasBarCode()) ? "-" + item.getId() : ""), true);
         if (item == null) {
             return;
         }
-        addComponentToDialog();
-        Point loc = parent.getLocation();
-        setLocation(loc.x + parent.getWidth() / 2 - getWidth() / 2, loc.y + parent.getHeight() / 2 - getHeight() / 2);
-        //fill item data to UI
+        this.updateByBarcodeReader = updateByBarcodeReader;
+        this.parent = parent;
         hasBarcode = item.hasBarCode();
         barcode = item.getId();
+        addComponentToDialog();
+        //fill item data to UI
+
         edtName.setText(item.getName());
         edtNote.setText(item.getNote());
         edtOriginPrice.setText(Utils.fmt(item.getOriginPrice()));
@@ -93,18 +101,45 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         edtWholeScalePrice.setText(Utils.fmt(item.getWholeScalePrice()));
         edtcategory.setText(item.getCategory());
         edtretailMaxNumber.setText(item.getRetailMaxNumber() + "");
-
+        Point loc = parent.getLocation();
+        setLocation(loc.x + parent.getWidth() / 2 - getWidth() / 2, loc.y + parent.getHeight() / 2 - getHeight() / 2);
     }
 
     private void addComponentToDialog() {
         JPanel panel = new JPanel();
+        JLabel label;
         panel.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(2, 20, 2, 2);
 
         int row = 0;
+        //show barcode
+        label = new JLabel("Barcode");
+        label.setFont(Constants.FONT_CONTENT);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+        String baseBarcode = barcode.split("_")[0];
+        label = new JLabel(baseBarcode);
+        label.setFont(Constants.FONT_CONTENT);
+        gbc.gridwidth = 2;
+        gbc.gridx = 1;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+        if (updateByBarcodeReader) {
+            btnAddNewItemWithBarcode = new JButton("THÊM HÀNG CÙNG MÃ");
+            label.setFont(Constants.FONT_CONTENT);
+            gbc.gridwidth = 2;
+            gbc.gridx = 3;
+            gbc.gridy = row;
+            panel.add(btnAddNewItemWithBarcode, gbc);
+            btnAddNewItemWithBarcode.addActionListener(this);
+        }
+        row++;
+
         //insert name 
-        JLabel label = new JLabel("Tên hàng");
+        label = new JLabel("Tên hàng");
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
@@ -270,15 +305,6 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
             dispose();
         });
 
-        btnOk.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                saveItem();
-                dispose();
-            }
-            
-        });
-
         getContentPane().add(panel);
         pack();
     }
@@ -287,50 +313,55 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         Object source = ae.getSource();
         if (source == btnOk) {
             saveItem();
+            result = new ItemDialogResult(ItemDialogResult.RESULT_UPDATE, item);
+        } else if (source == btnAddNewItemWithBarcode) {
+            item = null;
+            result = new ItemDialogResult(ItemDialogResult.RESULT_NEW_ITEM, null);
         } else {
+            result = null;
             item = null;
         }
         dispose();
     }
 
-    public Item run() {
+    public ItemDialogResult run() {
         this.setVisible(true);
-        return item;
+        return result;
     }
 
     private void showNoticeDialog(String message) {
         JOptionPane.showMessageDialog(this, message, "Chú ý", JOptionPane.WARNING_MESSAGE);
     }
 
-    private void saveItem(){
-            item = new Item();
-            item.setId(barcode);
-            item.setCategory(edtcategory.getText());
-            if (edtName.getText().isEmpty()) {
-                showNoticeDialog("Tên hàng không đươc để trống");
+    private void saveItem() {
+        item = new Item();
+        item.setId(barcode);
+        item.setCategory(edtcategory.getText());
+        if (edtName.getText().isEmpty()) {
+            showNoticeDialog("Tên hàng không đươc để trống");
 
-                return;
-            } else {
-                item.setName(edtName.getText());
-            }
-            item.setNote(edtNote.getText());
-            try {
-                item.setOriginPrice(Double.parseDouble(edtOriginPrice.getText()));
-                item.setRetailPrice(Double.parseDouble(edtRetailPrice.getText()));
-            } catch (NumberFormatException | NullPointerException e) {
-                showNoticeDialog("Nhập lại giá nhập/bán lẻ");
-                return;
-            }
+            return;
+        } else {
+            item.setName(edtName.getText());
+        }
+        item.setNote(edtNote.getText());
+        try {
+            item.setOriginPrice(Double.parseDouble(edtOriginPrice.getText()));
+            item.setRetailPrice(Double.parseDouble(edtRetailPrice.getText()));
+        } catch (NumberFormatException | NullPointerException e) {
+            showNoticeDialog("Nhập lại giá nhập/bán lẻ");
+            return;
+        }
 
-            item.setUnit(edtUnit.getText());
-            try {
-                item.setWholeScalePrice(Double.parseDouble(edtWholeScalePrice.getText()));
-            } catch (NumberFormatException | NullPointerException e) {
-                item.setWholeScalePrice(0);
-            }
-            if (!edtretailMaxNumber.getText().isEmpty()) {
-                item.setRetailMaxNumber(Integer.parseInt(edtretailMaxNumber.getText()));
-            }
-            item.setHasBarcode(hasBarcode ? 1 : 0);
+        item.setUnit(edtUnit.getText());
+        try {
+            item.setWholeScalePrice(Double.parseDouble(edtWholeScalePrice.getText()));
+        } catch (NumberFormatException | NullPointerException e) {
+            item.setWholeScalePrice(0);
+        }
+        if (!edtretailMaxNumber.getText().isEmpty()) {
+            item.setRetailMaxNumber(Integer.parseInt(edtretailMaxNumber.getText()));
+        }
+        item.setHasBarcode(hasBarcode ? 1 : 0);
     }
 }

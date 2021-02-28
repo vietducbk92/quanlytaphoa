@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.vdbk.apps.quanlybanhang.ui;
+package com.vdbk.apps.quanlybanhang.depot;
 
 import com.vdbk.apps.quanlybanhang.barcode.BarcodeReader;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager.DatabaseListener;
 import com.vdbk.apps.quanlybanhang.database.Item;
+import com.vdbk.apps.quanlybanhang.ui.Constants;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
@@ -18,6 +19,7 @@ import java.awt.Insets;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -30,7 +32,7 @@ import javax.swing.JTextField;
 public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.BarcodeListener, DatabaseListener {
 
     private DepotTable table;
-    private JButton addNewItemButton;
+    private JButton btnAddNewItem;
 //    private JButton addNewItemButton;
 //    private JButton editItemButton;
 //    private JButton deleteItemButton;
@@ -56,14 +58,14 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         edtSearch.setEnabled(false);
         pane.add(edtSearch, c);
 
-        addNewItemButton = new JButton("THÊM HÀNG MỚI");
-        addNewItemButton.setFont(Constants.FONT_CONTENT);
+        btnAddNewItem = new JButton("THÊM HÀNG MỚI");
+        btnAddNewItem.setFont(Constants.FONT_CONTENT);
         c.insets = new Insets(5, 5, 5, 5);
         c.fill = GridBagConstraints.BOTH;
         c.weightx = 0.2;
         c.gridx = 1;
         c.gridy = 0;
-        pane.add(addNewItemButton, c);
+        pane.add(btnAddNewItem, c);
 
         table = new DepotTable();
         table.setFont(Constants.FONT_CONTENT);
@@ -78,50 +80,6 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         c.gridy = 1;
         pane.add(table, c);
 
-        /* addNewItemButton = new JButton("THÊM HÀNG MỚI");
-        addNewItemButton.setFont(Constants.FONT_CONTENT);
-
-        editItemButton = new JButton("CHỈNH SỬA THÔNG TIN");
-        editItemButton.setFont(Constants.FONT_CONTENT);
-        editItemButton.setEnabled(false);
-        //   editItemButton.setAlignmentX(CENTER_ALIGNMENT);
-        // editItemButton.setSize(50, 200);
-        deleteItemButton = new JButton("XÓA");
-        deleteItemButton.setFont(Constants.FONT_CONTENT);
-        deleteItemButton.setEnabled(false);
-        //    deleteItemButton.setAlignmentX(CENTER_ALIGNMENT);
-
-        // Thêm Button vào Panel
-        c.insets = new Insets(10, 20, 10, 10);
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 2;
-        c.gridy = 1;
-        c.weighty = 0.0;
-        c.gridheight = 1;
-        pane.add(addNewItemButton, c);
-
-        c.insets = new Insets(10, 20, 10, 10);
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 2;
-        c.gridy = 2;
-        c.weighty = 0.0;
-        // buttonContainer.add(Box.createRigidArea(new Dimension(0,25)));
-        pane.add(editItemButton, c);
-
-        //buttonContainer.add(Box.createRigidArea(new Dimension(0,25)));
-        c.insets = new Insets(10, 20, 10, 10);
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 2;
-        c.gridy = 3;
-        c.weighty = 0.0;
-        pane.add(deleteItemButton, c);
-
-        c.insets = new Insets(10, 20, 10, 10);
-        c.fill = GridBagConstraints.BOTH;
-        c.gridx = 2;
-        c.gridy = 4;
-        c.weighty = 1.0;
-        pane.add(new Panel(), c);*/
         table.addItemSelectionListener(new DepotTable.ItemSelectionListener() {
             @Override
             public void onItemSelected(Item item) {
@@ -132,7 +90,8 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
 
             @Override
             public void onItemEntered(Item item) {
-                updateItem(item);
+                updateItem(item, false);
+
             }
 
             @Override
@@ -141,23 +100,9 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
             }
         });
 
-        addNewItemButton.addActionListener((ActionEvent e) -> {
+        btnAddNewItem.addActionListener((ActionEvent e) -> {
             addNewItem(null);
         });
-
-        /*        editItemButton.addActionListener((ActionEvent e) -> {
-            if (selectedItem != null) {
-                updateItem(selectedItem);
-            }
-        });
-        deleteItemButton.addActionListener((ActionEvent e) -> {
-            if (selectedItem != null) {
-                deleteItem(selectedItem);
-             //   editItemButton.setEnabled(false);
-             //   deleteItemButton.setEnabled(false);
-                selectedItem = null;
-            }
-        });*/
     }
 
     public DepotPanel(JFrame parent) throws HeadlessException, UnknownHostException {
@@ -183,10 +128,27 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
     public void onBarcodeRead(String barcode) {
         //check item exist in dababase or not
         barcodeReader.removeBarcodeListener(this);
-        Item item = databaseManager.getItem(barcode);
-        if (item != null) {
-            table.scrollToItem(barcode);
-            updateItem(item);
+        ArrayList<Item> items = databaseManager.getItems(barcode);
+        if (!items.isEmpty()) {
+            if (items.size() == 1) {
+                table.scrollToItem(barcode);
+                updateItem(items.get(0), true);
+            } else {//open multi dialog
+                if (items.size() > 1) {
+                    MultiItemDialog dialog = new MultiItemDialog(parent, barcode, items, false);
+                    ItemDialogResult result = dialog.run();
+                    if(result == null)
+                        return;
+                    if (result.isAddNewItem()) {
+                        addNewItem(barcode+"_"+System.currentTimeMillis());
+                    } else if (result.isDelete()) {
+                        databaseManager.deleteItem(result.item.getId());
+                    } else if (result.isEnter()) {
+                        table.scrollToItem(result.item.getId());
+                        updateItem(result.item, false);
+                    }
+                }
+            }
         } else {//add new item
             addNewItem(barcode);
         }
@@ -195,17 +157,22 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
 
     private void addNewItem(String barcode) {
         ItemDetailDialog dialog = new ItemDetailDialog(parent, barcode);
-        Item ret = dialog.run();
-        if (ret != null) {
-            databaseManager.insertItem(ret);
+        ItemDialogResult ret = dialog.run();
+        if (ret != null && ret.item != null) {
+            databaseManager.insertItem(ret.item);
         }
     }
 
-    private void updateItem(Item oldItem) {
-        ItemDetailDialog dialog = new ItemDetailDialog(parent, oldItem);
-        Item ret = dialog.run();
+    private void updateItem(Item oldItem, boolean updateByBarcodeReader) {
+        //TEST
+        ItemDetailDialog dialog = new ItemDetailDialog(parent, oldItem, updateByBarcodeReader);
+        ItemDialogResult ret = dialog.run();
         if (ret != null) {
-            databaseManager.update(ret);
+            if(ret.isUpdateItem())
+                databaseManager.update(ret.item);
+            else if(ret.isAddNewItem()){// tao mat hang co chung barcode
+                addNewItem(ret.item.getId()+"_"+System.currentTimeMillis());
+            }
         }
     }
 

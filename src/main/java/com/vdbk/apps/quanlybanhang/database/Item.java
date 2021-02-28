@@ -7,6 +7,7 @@ package com.vdbk.apps.quanlybanhang.database;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import org.bson.Document;
 
 /**
  *
@@ -47,7 +48,7 @@ public class Item {
     
     //public static String [] UNITS = {"cái","chai", "chiếc", "thùng", "hộp", "lon","lít","lạng","cân","gói"};
 
-    public Item(DBObject obj) {
+    public Item(Document obj) {
         setId((String) obj.get(KEY_ID));
         setName((String) obj.get(KEY_NAME));
         setOriginPrice((double) obj.get(KEY_ORIGIN_PRICE));
@@ -57,7 +58,7 @@ public class Item {
         setNote((String) obj.get(KEY_NOTE));
         setCategory((String) obj.get(KEY_CATEGORY));
         setUnit((String) obj.get(KEY_UNIT));
-        if(obj.containsField(KEY_HAS_BARCODE))
+        if(obj.containsKey(KEY_HAS_BARCODE))
             setHasBarcode((int) obj.get(KEY_HAS_BARCODE));
     }
 
@@ -177,9 +178,22 @@ public class Item {
     }
     
     
-    public BasicDBObject convertToDBOject(){
-        BasicDBObject obj = new BasicDBObject();
+    public Document convertToDocument(){
+        Document obj = new Document();
         obj.append(KEY_ID, id);
+        obj.append(KEY_NAME, name);
+        obj.append(KEY_ORIGIN_PRICE, originPrice);
+        obj.append(KEY_CATEGORY, category);
+        obj.append(KEY_NOTE,note);
+        obj.append(KEY_RETAIL_MAX_NUMBER,retailMaxNumber);
+        obj.append(KEY_RETAIL_PRICE, retailPrice);
+        obj.append(KEY_WHOLESCALE_PRICE,wholeScalePrice);
+        obj.append(KEY_UNIT, unit);
+        obj.append(KEY_HAS_BARCODE,hasBarCode);
+        return obj;
+    }
+    public Document convertToDocumentWithoutId(){
+        Document obj = new Document();
         obj.append(KEY_NAME, name);
         obj.append(KEY_ORIGIN_PRICE, originPrice);
         obj.append(KEY_CATEGORY, category);
