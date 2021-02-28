@@ -187,7 +187,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 if (text.trim().length() == 0) {
                     rowSorter.setRowFilter(null);
                 } else {
-                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text.toUpperCase()));
                 }
             }
 
@@ -198,7 +198,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 if (text.trim().length() == 0) {
                     rowSorter.setRowFilter(null);
                 } else {
-                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text.toUpperCase()));
                 }
             }
 

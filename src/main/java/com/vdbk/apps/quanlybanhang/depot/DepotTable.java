@@ -18,6 +18,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -28,7 +30,7 @@ public class DepotTable extends javax.swing.JPanel {
     private int itemCount = 0;
     private ArrayList<Item> items = new ArrayList<Item>();
     private ItemSelectionListener listener;
-
+    private TableRowSorter<TableModel> rowSorter;
     void update(String barcode, Item newItem) {
         for (int i = 0; i < items.size(); i++) {
             if (items.get(i).getId().equals(barcode)) {
@@ -97,7 +99,14 @@ public class DepotTable extends javax.swing.JPanel {
         jTable1.getTableHeader().setFont(Constants.FONT_CONTENT);
         jTable1.setFont(Constants.FONT_CONTENT);
         jTable1.setShowGrid(true);
+        
+        rowSorter = new TableRowSorter<>(jTable1.getModel());
+        jTable1.setRowSorter(rowSorter);
     }
+    
+    public TableRowSorter<TableModel> getRowSorter(){
+        return rowSorter;
+    } 
 
     public void addItemSelectionListener(ItemSelectionListener listener) {
         this.listener = listener;

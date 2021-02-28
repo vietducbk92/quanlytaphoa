@@ -24,6 +24,11 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -39,6 +44,7 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
     private JFrame parent;
     private DatabaseManager databaseManager;
     private BarcodeReader barcodeReader;
+    JTextField edtSearch;
     //private Item selectedItem;
 
     public void addComponentsToPane(Container pane) {
@@ -47,7 +53,7 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         pane.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
 
-        JTextField edtSearch = new JTextField();
+        edtSearch = new JTextField();
         edtSearch.setFont(Constants.FONT_CONTENT);
         c.insets = new Insets(5, 5, 5, 5);
         c.weightx = 0.8;
@@ -55,7 +61,6 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         c.gridx = 0;
         c.gridy = 0;
         //TODO enable when function available
-        edtSearch.setEnabled(false);
         pane.add(edtSearch, c);
 
         btnAddNewItem = new JButton("THÊM HÀNG MỚI");
@@ -116,6 +121,40 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
             public void onItemAvailable(Item item) {
                 table.addNewItem(item);
             }
+        });
+        
+        //search
+        //tim kiem
+        TableRowSorter<TableModel> rowSorter = table.getRowSorter();
+        edtSearch.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                String text = edtSearch.getText();
+
+                if (text.trim().length() == 0) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text.toUpperCase()));
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                String text = edtSearch.getText();
+
+                if (text.trim().length() == 0) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text.toUpperCase()));
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
         });
     }
 
