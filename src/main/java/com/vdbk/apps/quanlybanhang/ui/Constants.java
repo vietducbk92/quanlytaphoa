@@ -30,6 +30,6 @@ public class Constants {
     public static int TABLE_ROW_HEIGHT = 50;
     public static int TABLE_ROW_MARGIN = 5;
     
-    public static String VERSION = "1.0.0";
+    public static String VERSION = "1.0.1";
     
 }
