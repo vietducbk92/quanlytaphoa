@@ -94,8 +94,8 @@ public class Item {
     }
     
     public void setOriginPrice(double price){
-        if(originPrice < 1000)
-            originPrice = originPrice *1000;
+        if(price < 1000)
+            price = price *1000;
         this.originPrice = price;
     }
     

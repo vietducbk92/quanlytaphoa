@@ -313,6 +313,7 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         );
         traversal.setListener(() -> {
             saveItem();
+            result = new ItemDialogResult(ItemDialogResult.RESULT_UPDATE, item);
             dispose();
         });
 
