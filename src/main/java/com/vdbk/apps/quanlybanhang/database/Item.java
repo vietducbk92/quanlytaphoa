@@ -83,7 +83,7 @@ public class Item {
      * @return the name
      */
     public String getName() {
-        return name;
+        return name.toUpperCase();
     }
 
     /**

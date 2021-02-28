@@ -32,12 +32,16 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 /**
  *
@@ -171,6 +175,39 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
             }
         });
 
+        //tim kiem
+        TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableDepot.getModel());
+        tableDepot.setRowSorter(rowSorter);
+        edtSearch.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                String text = edtSearch.getText();
+
+                if (text.trim().length() == 0) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                String text = edtSearch.getText();
+
+                if (text.trim().length() == 0) {
+                    rowSorter.setRowFilter(null);
+                } else {
+                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text));
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+        });
     }
 
     /**
@@ -205,6 +242,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         jScrollPane3 = new javax.swing.JScrollPane();
         tableDepot = new javax.swing.JTable();
         btnCreateNewBill = new javax.swing.JButton();
+        edtSearch = new JTextField();
 
         setLayout(new java.awt.GridBagLayout());
 
@@ -501,10 +539,19 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         jScrollPane3.setMinimumSize(new java.awt.Dimension(320, 45));
         jScrollPane3.setViewportView(tableDepot);
 
+        edtSearch.setFont(Constants.FONT_CONTENT);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 9;
+        gridBagConstraints.gridheight = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
+        add(edtSearch, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridheight = 8;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
@@ -552,6 +599,8 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     private javax.swing.JTextField edtCustomerName;
     private javax.swing.JTextField edtCustomerPhoneNumber;
     private javax.swing.JTextField edtDiscount;
+
+    private JTextField edtSearch;
     // End of variables declaration 
 
     private void addItemToBillTable(Item item) {

@@ -35,7 +35,7 @@ public class NewBillItem implements BillItem {
     //ten
     @Override
     public String getName() {
-        return item.getName();
+        return item.getName().toUpperCase();
     }
 
     // đơn giá

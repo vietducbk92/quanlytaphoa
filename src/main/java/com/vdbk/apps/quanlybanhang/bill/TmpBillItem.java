@@ -39,7 +39,7 @@ public class TmpBillItem implements BillItem{
 
     @Override
     public String getName() {
-        return this.name;
+        return this.name.toUpperCase();
     }
 
     @Override
