@@ -87,7 +87,10 @@ public class NewBillItem implements BillItem {
 
     //thay đổi tổng tiền của hàng trong hóa đơn
     public void updateTotalPrice(double value) {
-        this.totalPrice = value;
+        if(value < 1000)
+            this.totalPrice = value * 1000;
+        else
+            this.totalPrice = value;
         float tmpAmount;
         double rnumber = totalPrice / item.getRetailPrice();
         if (value >= item.getWholeScalePrice() && item.getWholeScalePrice() > 0) {

@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import javafx.scene.control.CheckBox;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -57,6 +59,7 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
     private JTextField edtcategory;
     private JTextField edtNote;
     private JTextField edtUnit;
+    private JCheckBox cbxHasBarcode;
     private JButton btnOk;
     private JButton btnCancel;
     private JButton btnAddNewItemWithBarcode;
@@ -136,6 +139,14 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
             panel.add(btnAddNewItemWithBarcode, gbc);
             btnAddNewItemWithBarcode.addActionListener(this);
         }
+        row++;
+        //checkbox has barcode
+        cbxHasBarcode = new JCheckBox("Hàng có mã vạch");
+        cbxHasBarcode.setFont(Constants.FONT_CONTENT);
+        cbxHasBarcode.setSelected(hasBarcode);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(cbxHasBarcode, gbc);
         row++;
 
         //insert name 
@@ -362,6 +373,6 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         if (!edtretailMaxNumber.getText().isEmpty()) {
             item.setRetailMaxNumber(Integer.parseInt(edtretailMaxNumber.getText()));
         }
-        item.setHasBarcode(hasBarcode ? 1 : 0);
+        item.setHasBarcode(cbxHasBarcode.isSelected() ? 1 : 0);
     }
 }

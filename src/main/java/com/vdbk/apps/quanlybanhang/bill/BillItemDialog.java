@@ -8,6 +8,7 @@ package com.vdbk.apps.quanlybanhang.bill;
 import com.vdbk.apps.quanlybanhang.bill.NewBillItem;
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
 import com.vdbk.apps.quanlybanhang.ui.Constants;
+import com.vdbk.apps.quanlybanhang.ui.FocusTraversal;
 import com.vdbk.apps.quanlybanhang.ui.JMultilineLabel;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -234,6 +235,13 @@ public class BillItemDialog extends JDialog implements ActionListener {
         gbc.gridx = 1;
         gbc.gridy = 6;
         panel.add(btnCancel, gbc);
+        
+        
+        FocusTraversal traversal = new FocusTraversal(edtNumber,edtTotalPrice);
+        traversal.setListener(() -> {
+            outBillItem = billItem;
+            dispose();
+        });
 
         getContentPane().add(panel);
         pack();

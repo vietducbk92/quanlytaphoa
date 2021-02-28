@@ -94,6 +94,8 @@ public class Item {
     }
     
     public void setOriginPrice(double price){
+        if(originPrice < 1000)
+            originPrice = originPrice *1000;
         this.originPrice = price;
     }
     
@@ -114,6 +116,8 @@ public class Item {
      * @param wholeScalePrice the wholeScalePrice to set
      */
     public void setWholeScalePrice(double wholeScalePrice) {
+        if(wholeScalePrice < 1000)
+            wholeScalePrice = wholeScalePrice *1000;
         this.wholeScalePrice = wholeScalePrice;
     }
 
@@ -128,6 +132,8 @@ public class Item {
      * @param retailPrice the retailPrice to set
      */
     public void setRetailPrice(double retailPrice) {
+        if(retailPrice < 1000)
+            retailPrice = retailPrice *1000;
         this.retailPrice = retailPrice;
     }
 

@@ -15,7 +15,10 @@ public class TmpBillItem implements BillItem{
     
     public TmpBillItem(String name, double price){
         this.name = name;
-        this.totalPrice = price;
+        if(price < 1000)
+            this.totalPrice = price * 1000;
+        else
+            this.totalPrice = price;
     }
     
     public void updateName(String name){
@@ -23,7 +26,10 @@ public class TmpBillItem implements BillItem{
     }
     
     public void updateTotalPrice(double price){
-        this.totalPrice = price;
+        if(totalPrice < 1000)
+            this.totalPrice = price * 1000;
+        else
+            this.totalPrice = price;
     }
     
     @Override
