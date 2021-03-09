@@ -28,23 +28,21 @@ import javax.swing.table.TableRowSorter;
 public class DepotTable extends javax.swing.JPanel {
 
     private int itemCount = 0;
-    private ArrayList<Item> items = new ArrayList<Item>();
     private ItemSelectionListener listener;
     private TableRowSorter<TableModel> rowSorter;
+
     void update(String barcode, Item newItem) {
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getId().equals(barcode)) {
+        for (int i = 0; i < jTable1.getRowCount(); i++) {
+            if (jTable1.getValueAt(i, 0).equals(barcode)) {
                 String wsInformation = "";
                 if (newItem.getRetailMaxNumber() > 0) {
                     wsInformation = Utils.fmt(newItem.getWholeScalePrice()) + " / " + newItem.getRetailMaxNumber() + newItem.getUnit();
                 }
-                jTable1.setValueAt(newItem.getName(), i, 1);
-                jTable1.setValueAt(wsInformation, i, 2);
-                jTable1.setValueAt(newItem.getRetailPrice(), i, 3);
-                jTable1.setValueAt(newItem.getUnit(), i, 4);
-                jTable1.setValueAt(newItem.getNote(), i, 5);
-                items.remove(i);
-                items.add(i, newItem);
+                jTable1.setValueAt(newItem.getName(), i, 2);
+                jTable1.setValueAt(wsInformation, i, 3);
+                jTable1.setValueAt(newItem.getRetailPrice(), i, 4);
+                jTable1.setValueAt(newItem.getUnit(), i, 5);
+                jTable1.setValueAt(newItem.getNote(), i, 6);
                 scrollToIndex(i);
                 break;
             }
@@ -52,8 +50,8 @@ public class DepotTable extends javax.swing.JPanel {
     }
 
     public void scrollToItem(String barcode) {
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getId().equals(barcode)) {
+        for (int i = 0; i < jTable1.getRowCount(); i++) {
+            if (jTable1.getValueAt(i, 0).equals(barcode)) {
                 scrollToIndex(i);
                 break;
             }
@@ -61,10 +59,10 @@ public class DepotTable extends javax.swing.JPanel {
     }
 
     public void delete(String barcode) {
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).getId().equals(barcode)) {
-                ((DefaultTableModel) jTable1.getModel()).removeRow(i);
-                items.remove(i);
+        for (int i = 0; i < jTable1.getRowCount(); i++) {
+            if (jTable1.getValueAt(i, 0).equals(barcode)) {
+                int row = jTable1.convertRowIndexToModel(i);
+                ((DefaultTableModel) jTable1.getModel()).removeRow(row);
                 break;
             }
         }
@@ -101,14 +99,14 @@ public class DepotTable extends javax.swing.JPanel {
         jTable1.getTableHeader().setFont(Constants.FONT_CONTENT);
         jTable1.setFont(Constants.FONT_CONTENT);
         jTable1.setShowGrid(true);
-        
+
         rowSorter = new TableRowSorter<>(jTable1.getModel());
         jTable1.setRowSorter(rowSorter);
     }
-    
-    public TableRowSorter<TableModel> getRowSorter(){
+
+    public TableRowSorter<TableModel> getRowSorter() {
         return rowSorter;
-    } 
+    }
 
     public void addItemSelectionListener(ItemSelectionListener listener) {
         this.listener = listener;
@@ -130,7 +128,7 @@ public class DepotTable extends javax.swing.JPanel {
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                   "", "STT", "TÊN HÀNG", "GIÁ BÁN SỈ", "GIÁ BÁN LẺ", "ĐƠN VỊ", "GHI CHÚ", ""
+                    "", "STT", "TÊN HÀNG", "GIÁ BÁN SỈ", "GIÁ BÁN LẺ", "ĐƠN VỊ", "GHI CHÚ", ""
                 }
         ) {
             Class[] types = new Class[]{
@@ -158,14 +156,14 @@ public class DepotTable extends javax.swing.JPanel {
                 if (column == 7) {
                     JButton button = new JButton("");
                     button.setIcon(new javax.swing.ImageIcon(getClass().getResource("/clear_24.png"))); // NOI18N
-
+/*
                     button.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent arg0) {
                             //delete row bill item
-                            Item item = items.get(row);
-                            listener.onDeleteItemClicked(item.getId());
+                            String id = (String) jTable1.getValueAt(row, 0);
+                            listener.onDeleteItemClicked(id);
                         }
-                    });
+                    });*/
                     return button;
                 } else {
                     return super.getValueAt(row, column); //To change body of generated methods, choose Tools | Templates.
@@ -232,12 +230,13 @@ public class DepotTable extends javax.swing.JPanel {
         Object value = table.getValueAt(row, column);
         if (value instanceof JButton) {
             /*perform a click event*/
-            ((JButton) value).doClick();
+            //  ((JButton) value).doClick();
+            String id = (String) jTable1.getValueAt(row, 0);
+            listener.onDeleteItemClicked(id);
             return;
         }
 
-       // Item item = items.get(table.getSelectedRow());
-
+        // Item item = items.get(table.getSelectedRow());
         if (evt.getClickCount() == 2) {
             String id = (String) jTable1.getValueAt(row, 0);
             listener.onItemEntered(id);
@@ -256,8 +255,7 @@ public class DepotTable extends javax.swing.JPanel {
         if (item.getRetailMaxNumber() > 0) {
             wsInformation = Utils.fmt(item.getWholeScalePrice()) + " / " + item.getRetailMaxNumber() + item.getUnit();
         }
-        model.addRow(new Object[]{item.getId(),itemCount, item.getName(), wsInformation, item.getRetailPrice(), item.getUnit(), item.getNote()});
-        items.add(item);
+        model.addRow(new Object[]{item.getId(), itemCount, item.getName(), wsInformation, item.getRetailPrice(), item.getUnit(), item.getNote()});
     }
 
     private void scrollToIndex(int index) {

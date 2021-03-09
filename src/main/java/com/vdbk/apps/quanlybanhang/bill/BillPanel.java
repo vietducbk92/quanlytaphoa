@@ -54,7 +54,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     private ArrayList<Item> depotItems = new ArrayList<Item>();
     private ArrayList<BillItem> billItems = new ArrayList<BillItem>();
     private JFrame parent;
-
+    private TableRowSorter<TableModel> rowSorter;
     public void requestFocus() {
         barcodeReader.clearAllBarcodeListener();
         barcodeReader.addBarcodeListener(this);
@@ -178,7 +178,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         });
 
         //tim kiem
-        TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableDepot.getModel());
+        rowSorter = new TableRowSorter<>(tableDepot.getModel());
         tableDepot.setRowSorter(rowSorter);
         edtSearch.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -794,7 +794,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 || (!newItem.hasBarCode() && cboxCategory.getSelectedIndex() == 0)) {
             depotItems.add(newItem);
             DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
-            model.addRow(new Object[]{newItem.getName(), newItem.getRetailPrice()});
+            model.addRow(new Object[]{newItem.getId(),newItem.getName(), newItem.getRetailPrice()});
         }
     }
 
@@ -842,5 +842,11 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
             billItems.remove(index);
             ((DefaultTableModel) tableBill.getModel()).removeRow(index);
         }
+    }
+
+    public void clearSearch() {
+        edtSearch.setText("");
+        if(rowSorter != null)
+            rowSorter.setRowFilter(null);
     }
 }

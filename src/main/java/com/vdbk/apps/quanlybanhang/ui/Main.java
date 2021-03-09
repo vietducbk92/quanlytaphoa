@@ -129,6 +129,7 @@ public class Main extends javax.swing.JFrame {
                     case 1:
                         jHeader.setText("KHO HÀNG");
                         depot.requestFocus();
+                        bill.clearSearch();
                         break;
                     case 0:
                         jHeader.setText("HÓA ĐƠN BÁN HÀNG");

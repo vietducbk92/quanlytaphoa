@@ -96,16 +96,18 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
             @Override
             public void onItemEntered(String id) {
                 Item item = databaseManager.getItem(id);
-                if(item != null)
+                if (item != null) {
                     updateItem(item, false);
+                }
 
             }
 
             @Override
             public void onDeleteItemClicked(String id) {
                 Item item = databaseManager.getItem(id);
-                if(item != null)
+                if (item != null) {
                     deleteItem(item);
+                }
             }
         });
 
@@ -126,7 +128,7 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
                 table.addNewItem(item);
             }
         });
-        
+
         //search
         //tim kiem
         TableRowSorter<TableModel> rowSorter = table.getRowSorter();
@@ -173,6 +175,8 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         barcodeReader.removeBarcodeListener(this);
         ArrayList<Item> items = databaseManager.getItems(barcode);
         if (!items.isEmpty()) {
+            edtSearch.setText("");
+            table.getRowSorter().setRowFilter(null);
             if (items.size() == 1) {
                 table.scrollToItem(barcode);
                 updateItem(items.get(0), true);
@@ -180,10 +184,11 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
                 if (items.size() > 1) {
                     MultiItemDialog dialog = new MultiItemDialog(parent, barcode, items, false);
                     ItemDialogResult result = dialog.run();
-                    if(result == null)
+                    if (result == null) {
                         return;
+                    }
                     if (result.isAddNewItem()) {
-                        addNewItem(barcode+"_"+System.currentTimeMillis());
+                        addNewItem(barcode + "_" + System.currentTimeMillis());
                     } else if (result.isDelete()) {
                         databaseManager.deleteItem(result.item.getId());
                     } else if (result.isEnter()) {
@@ -199,6 +204,8 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
     }
 
     private void addNewItem(String barcode) {
+        edtSearch.setText("");
+        table.getRowSorter().setRowFilter(null);
         ItemDetailDialog dialog = new ItemDetailDialog(parent, barcode);
         ItemDialogResult ret = dialog.run();
         if (ret != null && ret.item != null) {
@@ -211,10 +218,10 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
         ItemDetailDialog dialog = new ItemDetailDialog(parent, oldItem, updateByBarcodeReader);
         ItemDialogResult ret = dialog.run();
         if (ret != null) {
-            if(ret.isUpdateItem())
+            if (ret.isUpdateItem()) {
                 databaseManager.update(ret.item);
-            else if(ret.isAddNewItem()){// tao mat hang co chung barcode
-                addNewItem(ret.item.getId()+"_"+System.currentTimeMillis());
+            } else if (ret.isAddNewItem()) {// tao mat hang co chung barcode
+                addNewItem(oldItem.getId() + "_" + System.currentTimeMillis());
             }
         }
     }
