@@ -1,4 +1,5 @@
 
+import static com.oracle.jrockit.jfr.ContentType.Timestamp;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager;
 import com.vdbk.apps.quanlybanhang.database.Item;
 import java.awt.Font;
@@ -16,6 +17,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.UnknownHostException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.print.attribute.HashPrintRequestAttributeSet;
@@ -48,6 +52,11 @@ public class Test {
        
         System.out.println("end print"+test.split("_")[0]);
         System.out.println("end print"+test2.split("_")[0]);
+        
+        long id = System.currentTimeMillis();
+        String timeStamp = new SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(new Timestamp(id));
+        System.out.print(timeStamp);
+        
     }
 
     public static String fmt(float d) {

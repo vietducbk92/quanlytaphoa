@@ -238,7 +238,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         jLabel7 = new javax.swing.JLabel();
         tvTotalBillAfterDiscount = new javax.swing.JLabel();
         btnPay = new javax.swing.JButton();
-        bntInDebt = new javax.swing.JButton();
+        bntPayAndPrint = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -460,11 +460,10 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         add(tvTotalBillAfterDiscountString, gridBagConstraints);
 
         btnPay.setFont(Constants.FONT_CONTENT);
-        btnPay.setEnabled(false);
         btnPay.setText("THANH TOÁN");
         btnPay.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                payBill();
+                payBill(false);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -475,21 +474,21 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(btnPay, gridBagConstraints);
 
-        bntInDebt.setFont(Constants.FONT_CONTENT);
-        bntInDebt.setEnabled(false);
-        bntInDebt.setText("NỢ");
+        bntPayAndPrint.setFont(Constants.FONT_CONTENT);
+        bntPayAndPrint.setEnabled(true);
+        bntPayAndPrint.setText("THANH TOÁN & IN HÓA ĐƠN");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
-        bntInDebt.addActionListener(new java.awt.event.ActionListener() {
+        bntPayAndPrint.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                debtBill();
+                payBill(true);
             }
         });
-        add(bntInDebt, gridBagConstraints);
+        add(bntPayAndPrint, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
@@ -583,7 +582,7 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     // Variables declaration - do not modify                     
     private javax.swing.JButton btnAddNewItem;
     private javax.swing.JButton btnPay;
-    private javax.swing.JButton bntInDebt;
+    private javax.swing.JButton bntPayAndPrint;
     private javax.swing.JButton btnCreateNewBill;
     private javax.swing.JComboBox<String> cboxCategory;
     private javax.swing.JLabel jLabel1;
@@ -671,8 +670,18 @@ public class BillPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         ((DefaultTableModel) tableBill.getModel()).setRowCount(0);
     }
 
-    private void payBill() {
+    private void payBill(boolean printable) {
         //save bill to database
+        
+        String customerName = edtCustomerName.getText();
+        String customerPhoneNumber = edtCustomerPhoneNumber.getText();
+        String totalPriceNum = tvTotalBillAfterDiscount.getText();
+        String totalPriceStr = tvTotalBillAfterDiscountString.getText();
+       
+        Bill bill = new Bill(customerName,customerPhoneNumber,billItems,totalPriceNum,totalPriceStr);
+        if(printable)
+            bill.print();
+        
         createNewBill();
     }
 
