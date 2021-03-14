@@ -30,7 +30,7 @@ public class Constants {
     public static int TABLE_ROW_HEIGHT = 50;
     public static int TABLE_ROW_MARGIN = 5;
     
-    public static String STORE_NAME = "TẠP HÓA LÝ HOÀN";
+    public static String STORE_NAME = "TẠP HÓA HOÀN LÝ";
     public static String STORE_PHONE_NUMBER = "Ms.Lý: 0377400834";
     public static String STORE_ADDRESS = "Châm khê-Phong Khê-TP.Bắc Ninh-BN";
     
