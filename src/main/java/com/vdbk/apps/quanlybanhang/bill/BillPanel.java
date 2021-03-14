@@ -113,7 +113,7 @@ public class BillPanel extends javax.swing.JPanel implements DatabaseListener {
         databaseManager.getAllBills((Bill item) -> {
             DefaultTableModel model = (DefaultTableModel) billTable.getModel();
             String timeStamp = new SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(new Timestamp(Long.parseLong(item.getId())));
-            model.insertRow(0,new Object[]{item.getId(),timeStamp,item.getCustomerName(),item.getCustomerPhoneNumber(),item.getTotalPriceNum()});
+            model.addRow(new Object[]{item.getId(),timeStamp,item.getCustomerName(),item.getCustomerPhoneNumber(),item.getTotalPriceNum()});
         });
         
                 //add item to bill table when double-click to item
