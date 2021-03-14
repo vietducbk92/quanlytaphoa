@@ -18,6 +18,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+import com.vdbk.apps.quanlybanhang.bill.Bill;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -46,6 +47,11 @@ public class DatabaseManager {
 
         void onItemAvailable(Item item);
     }
+    
+    public interface BillItemAvailableListener {
+
+        void onItemAvailable(Bill item);
+    }
 
     public interface DatabaseListener {
 
@@ -54,18 +60,25 @@ public class DatabaseManager {
         void onItemUpdated(Item updatedItem);
 
         void onItemDeleted(String id);
+
+        void onNewBillInserted(Bill bill);
+
+        void onBillDeleted(String id);
     }
 
     private MongoClient mongoClient;
     private MongoDatabase sellManagerDB;
     private MongoCollection<Document> depotCollection;
+    private MongoCollection<Document> billCollection;
     private static String SELL_MANAGER_DB = "SellManagerDB";
     private static String DEPOT_COLLECTION = "depot";
+    private static String BILL_COLLECTION = "bill";
 
     private DatabaseManager() throws UnknownHostException {
         mongoClient = MongoUtils.getMongoClient();
         sellManagerDB = mongoClient.getDatabase(SELL_MANAGER_DB);
         depotCollection = sellManagerDB.getCollection(DEPOT_COLLECTION);
+        billCollection = sellManagerDB.getCollection(BILL_COLLECTION);
     }
 
     public void addDatabaseListener(DatabaseListener listener) {
@@ -148,6 +161,41 @@ public class DatabaseManager {
         depotCollection.deleteOne(Filters.eq(Item.KEY_ID, code));
         for (DatabaseListener listener : listeners) {
             listener.onItemDeleted(code);
+        }
+    }
+
+    //bill
+    public void getAllBills(BillItemAvailableListener listener) {
+        FindIterable<Document> iterDoc = billCollection.find();
+        Iterator<Document> it = iterDoc.iterator();
+        while (it.hasNext()) {
+            Document obj = it.next();
+            listener.onItemAvailable(new Bill(obj));
+        }
+    }
+    
+    public Bill getBill(String id) {
+        FindIterable<org.bson.Document> iterDoc = billCollection.find(Filters.regex("_id", id));
+        Iterator<org.bson.Document> it = iterDoc.iterator();
+
+        while (it.hasNext()) {
+            return new Bill(it.next());
+        }
+        return null;
+    }
+    
+    public void insertNewBill(Bill bill) {
+        Document obj = bill.convertToDocument();
+        billCollection.insertOne(obj);
+        for (DatabaseListener listener : listeners) {
+            listener.onNewBillInserted(bill);
+        }
+    }
+
+    public void deleteBill(String id) {
+        billCollection.deleteOne(Filters.eq(Bill.KEY_ID, id));
+        for (DatabaseListener listener : listeners) {
+            listener.onItemDeleted(id);
         }
     }
 }

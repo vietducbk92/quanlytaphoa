@@ -6,6 +6,7 @@
 package com.vdbk.apps.quanlybanhang.depot;
 
 import com.vdbk.apps.quanlybanhang.barcode.BarcodeReader;
+import com.vdbk.apps.quanlybanhang.bill.Bill;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager;
 import com.vdbk.apps.quanlybanhang.database.DatabaseManager.DatabaseListener;
 import com.vdbk.apps.quanlybanhang.database.Item;
@@ -257,5 +258,15 @@ public class DepotPanel extends javax.swing.JPanel implements BarcodeReader.Barc
     @Override
     public void onItemDeleted(String id) {
         table.delete(id);
+    }
+
+    @Override
+    public void onNewBillInserted(Bill bill) {
+        
+    }
+
+    @Override
+    public void onBillDeleted(String id) {
+        
     }
 }

@@ -5,8 +5,9 @@
  */
 package com.vdbk.apps.quanlybanhang.ui;
 
-import com.vdbk.apps.quanlybanhang.depot.DepotPanel;
 import com.vdbk.apps.quanlybanhang.bill.BillPanel;
+import com.vdbk.apps.quanlybanhang.depot.DepotPanel;
+import com.vdbk.apps.quanlybanhang.bill.SellPanel;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,36 +50,36 @@ public class Main extends javax.swing.JFrame {
     private void initComponents() throws UnknownHostException {
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        
+
         jHeader = new JLabel();
         jHeader.setHorizontalAlignment(SwingConstants.CENTER);
         jHeader.setVerticalAlignment(SwingConstants.CENTER);
         jHeader.setFont(Constants.FONT_HEADER);
         jHeader.setText("KHO HÀNG");
-        
+
         jTabbedPane1 = new javax.swing.JTabbedPane();
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         jTabbedPane1.setTabPlacement(javax.swing.JTabbedPane.LEFT);
         jTabbedPane1.setFont(Constants.FONT_TITLE);
-        
+       
+
         JButton btnMinimize = new JButton("_");
         JButton btnClose = new JButton("X");
-        
+
         JPanel panel = new JPanel();
         c.weightx = 1.0;
         c.gridx = 0;
         c.gridy = 0;
         add(panel, c);
-        
-        JLabel tf = new JLabel("Version: "+Constants.VERSION);
+
+        JLabel tf = new JLabel("Version: " + Constants.VERSION);
         c.insets = new Insets(10, 5, 5, 10);
         c.weightx = 0.0;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 0;
         add(tf, c);
-        
-        
+
         c.insets = new Insets(10, 5, 5, 5);
         c.weightx = 0.0;
         c.gridx = 1;
@@ -89,7 +90,7 @@ public class Main extends javax.swing.JFrame {
         c.gridx = 2;
         c.gridy = 0;
         add(btnClose, c);
-        
+
         c.insets = new Insets(20, 0, 0, 0);
         //  c.weightx = 1.0;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -98,7 +99,7 @@ public class Main extends javax.swing.JFrame {
         c.gridwidth = 3;
         c.gridheight = 1;
         add(jHeader, c);
-        
+
         c.insets = new Insets(10, 10, 10, 10);
         c.fill = GridBagConstraints.BOTH;
         //  c.weightx = 1.0;
@@ -109,16 +110,18 @@ public class Main extends javax.swing.JFrame {
         add(jTabbedPane1, c);
 
         /* add three tab with three JPanel */
-        BillPanel bill = new BillPanel(this);
+        SellPanel sell = new SellPanel(this);
         DepotPanel depot = new DepotPanel(this);
-        
-        jTabbedPane1.addTab("BÁN HÀNG", null, bill, "click to show panel 2");
+        BillPanel bill = new BillPanel(this);
+
+        jTabbedPane1.addTab("BÁN HÀNG", null, sell, "click to show panel 2");
         jTabbedPane1.addTab("KHO", null, depot, "click to show panel 1");
+        jTabbedPane1.addTab("HÓA ĐƠN", null, bill, "");
         //default tab is bill
         jTabbedPane1.setSelectedIndex(0);
-        bill.requestFocus();
+        sell.requestFocus();
         jHeader.setText("HÓA ĐƠN BÁN HÀNG");
-        
+
         jTabbedPane1.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
@@ -126,41 +129,46 @@ public class Main extends javax.swing.JFrame {
                     return;
                 }
                 switch (jTabbedPane1.getSelectedIndex()) {
+                    case 0:
+                        jHeader.setText("HÓA ĐƠN BÁN HÀNG");
+                        sell.requestFocus();
+                        break;
                     case 1:
                         jHeader.setText("KHO HÀNG");
                         depot.requestFocus();
-                        bill.clearSearch();
+                        sell.clearSearch();
                         break;
-                    case 0:
-                        jHeader.setText("HÓA ĐƠN BÁN HÀNG");
-                        bill.requestFocus();
+                    case 2:
+                        jHeader.setText("HÓA ĐƠN");
+
+                        sell.clearSearch();
                         break;
                     default:
                         break;
                 }
             }
         });
-        
+
         btnMinimize.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 minimizeApplication();
             }
         });
-        
+
         btnClose.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 closeApplication();
             }
         });
-        
+
     }// </editor-fold>         
 
     private void minimizeApplication() {
         this.setState(Frame.ICONIFIED);
     }
-    
+
     private void closeApplication() {
         Object[] options = {"Có",
             "Không"};
@@ -219,7 +227,7 @@ public class Main extends javax.swing.JFrame {
                 } catch (UnknownHostException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                
+
             }
         });
     }

@@ -20,6 +20,7 @@ import java.awt.print.PrinterJob;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import org.bson.Document;
 
 /**
  *
@@ -27,7 +28,7 @@ import java.util.ArrayList;
  */
 public class Bill implements Printable {
 
-    private long id;
+    private String id;
     private String customerName;
     private String customerPhoneNumber;
     private String content;
@@ -42,7 +43,7 @@ public class Bill implements Printable {
     public static String KEY_TOTAL_PRICE_STR = "_total_price_str";
 
     public Bill(String customerName, String phoneNumber, ArrayList<BillItem> billItems, String totalPriceNum, String totalPriceStr) {
-        id = System.currentTimeMillis();
+        id = System.currentTimeMillis()+"";
         this.customerName = customerName;
         this.customerPhoneNumber = phoneNumber;
         this.totalPriceNum = totalPriceNum;
@@ -51,6 +52,15 @@ public class Bill implements Printable {
         for (BillItem item : billItems) {
             this.content = this.content + item.getName() + "-" + Utils.fmt(item.getUnitPrice()) + "-" + Utils.fmt(item.getNumber()) + "-" + item.getUnit() + "-" + Utils.fmt(item.getTotalPrice()) + "/";
         }
+    }
+    
+    public Bill(Document obj) {
+        this.id = ((String) obj.get(KEY_ID));
+        this.customerName = ((String) obj.get(KEY_CUSTOMER_NAME));
+        this.customerPhoneNumber = ((String) obj.get(KEY_CUSTOMER_PHONE_NUMBER));
+        this.totalPriceNum = ((String) obj.get(KEY_TOTAL_PRICE_NUM));
+        this.totalPriceStr = ((String) obj.get(KEY_TOTAL_PRICE_STR));
+        this.content = ((String) obj.get(KEY_CONTENT));
     }
 
     public void print() {
@@ -85,10 +95,6 @@ public class Bill implements Printable {
         Graphics2D g2d = (Graphics2D) g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
 
-        System.out.println("pf.get WxH: " + pf.getWidth() + "x" + pf.getHeight());
-        System.out.println("pf.get1 WxH: " + pf.getImageableWidth() + "x" + pf.getImageableHeight());
-        System.out.println("pf.get2 WxH: " + pf.getImageableX() + "x" + pf.getImageableY());
-
         int pageWidth = (int) pf.getImageableY() * 2 - padding;
         //draw HEADER
         //store name
@@ -111,35 +117,35 @@ public class Bill implements Printable {
         y += lineHeight;
         //draw date
         font = new Font("Serif", Font.PLAIN, 9);
-        String timeStamp = new SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(new Timestamp(id));
+        String timeStamp = new SimpleDateFormat("dd-M-yyyy hh:mm:ss").format(new Timestamp(Long.parseLong(getId())));
         lineHeight = drawText(timeStamp, y, g2d, font, pageWidth, CENTER);
         y += lineHeight;
         //draw customer name
-        String text = customerName.isEmpty() ? "Khách lẻ" : customerName;
+        String text = getCustomerName().isEmpty() ? "Khách lẻ" : getCustomerName();
         lineHeight = drawText("Khách hàng: " + text, y, g2d, font, pageWidth, LEFT);
         y += lineHeight;
         //draw customer phone
         if (!customerPhoneNumber.isEmpty()) {
-            lineHeight = drawText("SDT: " + customerPhoneNumber, y, g2d, font, pageWidth, LEFT);
+            lineHeight = drawText("SDT: " + getCustomerPhoneNumber(), y, g2d, font, pageWidth, LEFT);
             y += lineHeight;
         }
         //draw content
         g.drawLine(0, y, pageWidth, y);
         y += lineHeight;
 
-        String[] items = content.split("/");
+        String[] items = getContent().split("/");
         for (String item : items) {
             String[] itemDetail = item.split("-");
             String name = itemDetail[0].toLowerCase();
             String unitPrice = itemDetail[1];
             String number = itemDetail[2];
-            
+
             String unit = itemDetail[3].toLowerCase();
             String price = itemDetail[4];
 
             lineHeight = drawText(name, y, g2d, font, pageWidth, LEFT);
             y += lineHeight;
-            lineHeight = drawText(unitPrice+"x"+ number + " " + unit, y, g2d, font, pageWidth, LEFT);
+            lineHeight = drawText(unitPrice + "x" + number + " " + unit, y, g2d, font, pageWidth, LEFT);
             lineHeight = drawText(price, y, g2d, font, pageWidth, RIGHT);
             y += lineHeight;
         }
@@ -148,10 +154,10 @@ public class Bill implements Printable {
         //Draw total price
         font = new Font("Serif", Font.BOLD, 9);
         lineHeight = drawText("Tổng:", y, g2d, font, pageWidth, LEFT);
-        lineHeight = drawText(totalPriceNum, y, g2d, font, pageWidth, RIGHT);
+        lineHeight = drawText(getTotalPriceNum(), y, g2d, font, pageWidth, RIGHT);
         y += lineHeight;
         font = new Font("Serif", Font.ITALIC, 9);
-        lineHeight = drawText(totalPriceStr, y, g2d, font, pageWidth, LEFT);
+        lineHeight = drawText(getTotalPriceStr(), y, g2d, font, pageWidth, LEFT);
         y += lineHeight * 2;
 
         drawText("Cảm ơn quý khách", y, g2d, font, pageWidth, CENTER);
@@ -192,5 +198,58 @@ public class Bill implements Printable {
         textHeight = metrics.getHeight();
         g.drawString(text, x, y);
         return textHeight;
+    }
+
+    public Document convertToDocument() {
+        Document obj = new Document();
+        obj.append(KEY_ID, getId());
+        obj.append(KEY_CUSTOMER_NAME, getCustomerName());
+        obj.append(KEY_CUSTOMER_PHONE_NUMBER, getCustomerPhoneNumber());
+        obj.append(KEY_CONTENT, getContent());
+        obj.append(KEY_TOTAL_PRICE_NUM, getTotalPriceNum());
+        obj.append(KEY_TOTAL_PRICE_STR, getTotalPriceStr());
+        return obj;
+    }
+
+    /**
+     * @return the id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * @return the customerName
+     */
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    /**
+     * @return the customerPhoneNumber
+     */
+    public String getCustomerPhoneNumber() {
+        return customerPhoneNumber;
+    }
+
+    /**
+     * @return the content
+     */
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * @return the totalPriceNum
+     */
+    public String getTotalPriceNum() {
+        return totalPriceNum;
+    }
+
+    /**
+     * @return the totalPriceStr
+     */
+    public String getTotalPriceStr() {
+        return totalPriceStr;
     }
 }
