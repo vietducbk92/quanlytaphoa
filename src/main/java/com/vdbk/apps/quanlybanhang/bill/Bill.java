@@ -172,11 +172,6 @@ public class Bill implements Printable {
         } else if(printEnding){
 //            g.drawLine(0, y, pageWidth, y);
 //            y += lineHeight;
-            //Draw total item
-            font = new Font("Serif", Font.BOLD, 12);
-            lineHeight = drawText("Số lượng:", y, g2d, font, pageWidth, LEFT);
-            lineHeight = drawText(items.size()+"", y, g2d, font, pageWidth, RIGHT);
-            y += lineHeight;
             //Draw total price
             font = new Font("Serif", Font.BOLD, 12);
             lineHeight = drawText("Tổng:", y, g2d, font, pageWidth, LEFT);

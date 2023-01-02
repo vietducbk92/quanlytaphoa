@@ -16,9 +16,11 @@ import com.vdbk.apps.quanlybanhang.depot.ItemDialogResult;
 import com.vdbk.apps.quanlybanhang.depot.MultiItemDialog;
 import com.vdbk.apps.quanlybanhang.ui.JMultilineLabel;
 import com.vdbk.apps.quanlybanhang.ui.JTableButton;
-import java.awt.Frame;
+
+import java.awt.*;
+
 import static java.awt.GridBagConstraints.BOTH;
-import java.awt.Point;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -624,6 +626,7 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
                 tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
                 tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
+                scrollToIndex(index);
             }
         } else { //add new item to bill
             NewBillItem billItem = new NewBillItem(item);
@@ -634,8 +637,14 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 billItems.add(editedItem);
                 DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
                 model.addRow(new Object[]{editedItem.getName(), editedItem.getUnitPrice(), editedItem.getNumber(), editedItem.getUnit(), editedItem.getTotalPrice()});
+                scrollToIndex(billItems.size()-1);
             }
         }
+    }
+
+    private void scrollToIndex(int index) {
+        tableBill.setRowSelectionInterval(index, index);
+        tableBill.scrollRectToVisible(new Rectangle(tableBill.getCellRect(index, 0, true)));
     }
 
     private void editItemInBillTable(int row) {
@@ -712,12 +721,14 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                     tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
                     tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
                     tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
+                    scrollToIndex(index);
                 } else {//new item
                     NewBillItem billItem = new NewBillItem(items.get(0));
                     billItems.add(billItem);
                     DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
                     model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
                         billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                    scrollToIndex(billItems.size()-1);
                 }
             } else {
                 ItemDialogResult ret = new MultiItemDialog(parent, barcode, items, true).run();
@@ -734,12 +745,14 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                         tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
                         tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
                         tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
+                        scrollToIndex(index);
                     } else {//new item
                         NewBillItem billItem = new NewBillItem(ret.item);
                         billItems.add(billItem);
                         DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
                         model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
                             billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                        scrollToIndex(billItems.size()-1);
                     }
                 }
             }
@@ -753,6 +766,7 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                 DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
                 model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
                     billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                scrollToIndex(billItems.size()-1);
             }
         }
 
