@@ -170,10 +170,15 @@ public class Bill implements Printable {
             y += lineHeight;
 
         } else if(printEnding){
-            g.drawLine(0, y, pageWidth, y);
+//            g.drawLine(0, y, pageWidth, y);
+//            y += lineHeight;
+            //Draw total item
+            font = new Font("Serif", Font.BOLD, 12);
+            lineHeight = drawText("Số lượng:", y, g2d, font, pageWidth, LEFT);
+            lineHeight = drawText(items.size()+"", y, g2d, font, pageWidth, RIGHT);
             y += lineHeight;
             //Draw total price
-            font = new Font("Serif", Font.BOLD, 9);
+            font = new Font("Serif", Font.BOLD, 12);
             lineHeight = drawText("Tổng:", y, g2d, font, pageWidth, LEFT);
             lineHeight = drawText(getTotalPriceNum(), y, g2d, font, pageWidth, RIGHT);
             y += lineHeight;
@@ -201,6 +206,8 @@ public class Bill implements Printable {
                 y += lineHeight;
                 lineHeight = drawText(unitPrice + "x" + number + " " + unit, y, g2d, font, pageWidth, LEFT);
                 lineHeight = drawText(price, y, g2d, font, pageWidth, RIGHT);
+                y += 5;
+                g.drawLine(0, y, pageWidth, y);
                 y += lineHeight;
             }
 
