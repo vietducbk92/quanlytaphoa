@@ -201,11 +201,11 @@ public class Bill implements Printable {
 
                 String unit = itemDetail[3].toLowerCase();
                 String price = itemDetail[4];
-
-                lineHeight = drawText(name, y, g2d, font, pageWidth, LEFT);
+                String nameStr = (i+1)+"-"+name;
+                lineHeight = drawText(nameStr.toUpperCase(), y, g2d, font, pageWidth, LEFT);
                 y += lineHeight;
                 lineHeight = drawText(unitPrice + "x" + number + " " + unit, y, g2d, font, pageWidth, LEFT);
-                lineHeight = drawText(price, y, g2d, font, pageWidth, RIGHT);
+                drawText(price, y, g2d, font, pageWidth, RIGHT);
                 y += 5;
                 g.drawLine(0, y, pageWidth, y);
                 y += lineHeight;
