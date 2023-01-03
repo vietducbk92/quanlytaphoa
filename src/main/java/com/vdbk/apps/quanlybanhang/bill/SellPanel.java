@@ -321,8 +321,8 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableBill.getColumnModel().getColumn(4).setMinWidth(Constants.ITEM_PRICE_WIDTH);
         tableBill.getColumnModel().getColumn(5).setMaxWidth(Constants.ITEM_BTN_DEL_WIDTH);
         tableBill.getColumnModel().getColumn(5).setMinWidth(Constants.ITEM_BTN_DEL_WIDTH);
-        jScrollPane2.setPreferredSize(new java.awt.Dimension(595, 402));
-        jScrollPane2.setMinimumSize(new java.awt.Dimension(595, 402));
+        jScrollPane2.setPreferredSize(new java.awt.Dimension(895, 402));
+        jScrollPane2.setMinimumSize(new java.awt.Dimension(895, 402));
         jScrollPane2.setViewportView(tableBill);
 
         gridBagConstraints = new java.awt.GridBagConstraints();

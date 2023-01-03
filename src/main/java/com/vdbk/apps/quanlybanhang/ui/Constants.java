@@ -21,7 +21,7 @@ public class Constants {
     public static Font FONT_CONTENT = new Font(FONT_TYPE,Font.PLAIN,TEXT_SIZE_CONTENT);
     
     public static int ITEM_INDEX_WIDTH = 50;
-    public static int ITEM_NAME_WIDTH = 200;
+    public static int ITEM_NAME_WIDTH = 500;
     public static int ITEM_PRICE_WIDTH = 100;
     public static int ITEM_UNIT_WIDTH = 70;
     public static int ITEM_BTN_DEL_WIDTH = 50;
@@ -34,6 +34,6 @@ public class Constants {
     public static String STORE_PHONE_NUMBER = "Ms.Lý: 0377400834";
     public static String STORE_ADDRESS = "Châm khê-Phong Khê-TP.Bắc Ninh-BN";
     
-    public static String VERSION = "1.0.2";
+    public static String VERSION = "1.0.3";
     
 }

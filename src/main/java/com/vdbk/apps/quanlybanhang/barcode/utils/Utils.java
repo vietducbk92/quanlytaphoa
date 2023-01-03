@@ -3,6 +3,7 @@ package com.vdbk.apps.quanlybanhang.barcode.utils;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Utils {
@@ -21,6 +22,11 @@ public class Utils {
         }
         return strReturn;
 
+    }
+    public static String formatDouble(double number){
+        Locale localeVN = new Locale("vi", "VN");
+        NumberFormat currencyVN = NumberFormat.getCurrencyInstance(localeVN);
+        return currencyVN.format(number);
     }
 
 //	public static void main(String[] args) {

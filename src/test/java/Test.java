@@ -1,31 +1,13 @@
-
-import static com.oracle.jrockit.jfr.ContentType.Timestamp;
-import com.vdbk.apps.quanlybanhang.database.DatabaseManager;
-import com.vdbk.apps.quanlybanhang.database.Item;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.print.PageFormat;
-import static java.awt.print.PageFormat.LANDSCAPE;
-import static java.awt.print.PageFormat.PORTRAIT;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.net.UnknownHostException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.MediaSizeName;
-import javax.print.attribute.standard.OrientationRequested;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

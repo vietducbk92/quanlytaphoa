@@ -199,8 +199,8 @@ public class Bill implements Printable {
                 String nameStr = (i+1)+"-"+name;
                 lineHeight = drawText(nameStr.toUpperCase(), y, g2d, font, pageWidth, LEFT);
                 y += lineHeight;
-                lineHeight = drawText(unitPrice + "x" + number + " " + unit, y, g2d, font, pageWidth, LEFT);
-                drawText(price, y, g2d, font, pageWidth, RIGHT);
+                lineHeight = drawText(Utils.formatDouble(Double.valueOf(unitPrice)) + "x" + number + " " + unit, y, g2d, font, pageWidth, LEFT);
+                drawText(Utils.formatDouble(Double.valueOf(price)), y, g2d, font, pageWidth, RIGHT);
                 y += 5;
                 g.drawLine(0, y, pageWidth, y);
                 y += lineHeight;
