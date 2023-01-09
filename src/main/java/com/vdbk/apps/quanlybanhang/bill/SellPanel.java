@@ -30,13 +30,7 @@ import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
@@ -263,14 +257,14 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableBill.setModel(new javax.swing.table.DefaultTableModel(
                 new Object[][]{},
                 new String[]{
-                    "SẢN PHẨM", "ĐƠN GIÁ", "SL", "ĐƠN VỊ", "T.TIỀN", ""
+                    "SẢN PHẨM", "ĐƠN GIÁ", "SL", "ĐƠN VỊ", "T.TIỀN", "",""
                 }
         ) {
             Class[] types = new Class[]{
-                String.class, java.lang.Double.class, java.lang.Float.class, java.lang.String.class, java.lang.Double.class, JButton.class
+                String.class, java.lang.Double.class, java.lang.Float.class, java.lang.String.class, java.lang.Double.class, JButton.class,JButton.class
             };
             boolean[] canEdit = new boolean[]{
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -293,6 +287,15 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                         }
                     });
                     return button;
+                } else if (column == 6) {
+                    JButton button = new JButton("Sửa giá");
+                    button.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent arg0) {
+                            //delete row bill item
+                            updateItemInBillTable(row);
+                        }
+                    });
+                    return button;
                 } else {
                     return super.getValueAt(row, column); //To change body of generated methods, choose Tools | Templates.
                 }
@@ -301,6 +304,7 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         });
 
         tableBill.getColumnModel().getColumn(5).setCellRenderer(new JTableButton.JTableButtonRenderer());
+        tableBill.getColumnModel().getColumn(6).setCellRenderer(new JTableButton.JTableButtonRenderer());
         tableBill.addMouseListener(new JTableButton.JTableButtonMouseListener(tableBill));
         tableBill.getTableHeader().setReorderingAllowed(false);
         tableBill.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_LAST_COLUMN);
@@ -309,8 +313,7 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableBill.getTableHeader().setFont(Constants.FONT_CONTENT);
         tableBill.setFont(Constants.FONT_CONTENT);
         tableBill.setShowGrid(true);
-        tableBill.getColumnModel().getColumn(0).setMaxWidth(Constants.ITEM_NAME_WIDTH);//ten
-        tableBill.getColumnModel().getColumn(0).setMinWidth(Constants.ITEM_NAME_WIDTH);
+
         tableBill.getColumnModel().getColumn(1).setMaxWidth(Constants.ITEM_PRICE_WIDTH);//gia
         tableBill.getColumnModel().getColumn(1).setMinWidth(Constants.ITEM_PRICE_WIDTH);
         tableBill.getColumnModel().getColumn(2).setMaxWidth(Constants.ITEM_NUMBER_WIDTH);
@@ -321,6 +324,8 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         tableBill.getColumnModel().getColumn(4).setMinWidth(Constants.ITEM_PRICE_WIDTH);
         tableBill.getColumnModel().getColumn(5).setMaxWidth(Constants.ITEM_BTN_DEL_WIDTH);
         tableBill.getColumnModel().getColumn(5).setMinWidth(Constants.ITEM_BTN_DEL_WIDTH);
+        tableBill.getColumnModel().getColumn(6).setMaxWidth(Constants.ITEM_BTN_DEL_WIDTH*2);
+        tableBill.getColumnModel().getColumn(6).setMinWidth(Constants.ITEM_BTN_DEL_WIDTH*2);
         jScrollPane2.setPreferredSize(new java.awt.Dimension(895, 402));
         jScrollPane2.setMinimumSize(new java.awt.Dimension(895, 402));
         jScrollPane2.setViewportView(tableBill);
@@ -705,6 +710,28 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         ((DefaultTableModel) tableBill.getModel()).removeRow(row);
     }
 
+    private void updateItemInBillTable(int row){
+        BillItem bilItem = billItems.get(row);
+        if(bilItem instanceof TmpBillItem) {
+            editItemInBillTable(row);
+            return;
+        }
+        Item item = dataBaseManager.getItem(bilItem.getId());
+        if(item == null)
+             showNoticeDialog("Không tìm thấy sản phẩm trong kho");
+        ItemDetailDialog dialog = new ItemDetailDialog(parent,item,true);
+        ItemDialogResult result = dialog.run();
+        if(result.isUpdateItem()){
+            dataBaseManager.update(result.item);
+           // onItemUpdated(result.item);
+        }
+
+    }
+
+    private void showNoticeDialog(String message) {
+        JOptionPane.showMessageDialog(this, message, "Chú ý", JOptionPane.WARNING_MESSAGE);
+    }
+
     @Override
     public void onBarcodeRead(String barcode) {
         barcodeReader.removeBarcodeListener(this);
@@ -832,8 +859,8 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                     depotItems.remove(i);
                     depotItems.add(i, updatedItem);
                     DefaultTableModel model = (DefaultTableModel) tableDepot.getModel();
-                    model.setValueAt(updatedItem.getName(), i, 0);
-                    model.setValueAt(updatedItem.getRetailPrice(), i, 1);
+                    model.setValueAt(updatedItem.getName(), i, 1);
+                    model.setValueAt(updatedItem.getRetailPrice(), i, 2);
                     break;
                 }
             }
