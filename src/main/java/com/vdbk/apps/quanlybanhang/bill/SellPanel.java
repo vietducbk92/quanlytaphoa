@@ -5,6 +5,10 @@
  */
 package com.vdbk.apps.quanlybanhang.bill;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.vdbk.apps.quanlybanhang.bill.NewBillItem;
 import com.vdbk.apps.quanlybanhang.barcode.utils.Utils;
 import com.vdbk.apps.quanlybanhang.barcode.BarcodeReader;
@@ -25,7 +29,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
+import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -38,6 +44,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.html.ImageView;
 
 /**
  *
@@ -62,6 +69,7 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
     public SellPanel(JFrame parent) throws UnknownHostException {
         this.parent = parent;
         initComponents();
+
         dataBaseManager = dataBaseManager.getInstance();
         barcodeReader = BarcodeReader.getInstance();
         dataBaseManager.addDatabaseListener(this);
@@ -502,8 +510,22 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        //hien thi ma qr ip address
+        try {
+            String ipAddress = Inet4Address.getLocalHost().getHostAddress();
+            QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix matrix = qrCodeWriter.encode(ipAddress, BarcodeFormat.QR_CODE, 200, 200);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(matrix, "PNG", outputStream);
+            byte[] pngByteArray = outputStream.toByteArray();
+            ImageIcon icon = new ImageIcon(pngByteArray);
+            add(new JLabel(icon), gridBagConstraints);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
         //  gridBagConstraints.weightx = 1.0;
-        add(jPanel1, gridBagConstraints);
+
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
