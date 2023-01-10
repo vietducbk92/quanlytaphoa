@@ -746,37 +746,15 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
 
     @Override
     public void onBarcodeRead(String barcode) {
+        System.out.println("onBarCodeReader: "+barcode);
         barcodeReader.removeBarcodeListener(this);
-        ArrayList<Item> items = dataBaseManager.getItems(barcode);
-        if (!items.isEmpty()) {
-            //nhieu mat hang co cung ma vach
-            if (items.size() == 1) {
-                //check item in bill
-                int index = getItemInBill(barcode);
-                if (index >= 0) {//item existed in bill
-                    NewBillItem billitem = (NewBillItem) (billItems.get(index));
-                    float currentNumber = billitem.getNumber();
-                    billitem.updateNumber(currentNumber + 1);
-                    tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
-                    tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
-                    tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
-                    scrollToIndex(index);
-                } else {//new item
-                    NewBillItem billItem = new NewBillItem(items.get(0));
-                    billItems.add(billItem);
-                    DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
-                    model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
-                        billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
-                    scrollToIndex(billItems.size()-1);
-                }
-            } else {
-                ItemDialogResult ret = new MultiItemDialog(parent, barcode, items, true).run();
-                if (ret == null) {
-                    return;
-                }
-                if (ret.isEnter()) {
+        try {
+            ArrayList<Item> items = dataBaseManager.getItems(barcode);
+            if (!items.isEmpty()) {
+                //nhieu mat hang co cung ma vach
+                if (items.size() == 1) {
                     //check item in bill
-                    int index = getItemInBill(ret.item.getId());
+                    int index = getItemInBill(barcode);
                     if (index >= 0) {//item existed in bill
                         NewBillItem billitem = (NewBillItem) (billItems.get(index));
                         float currentNumber = billitem.getNumber();
@@ -786,30 +764,71 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
                         tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
                         scrollToIndex(index);
                     } else {//new item
-                        NewBillItem billItem = new NewBillItem(ret.item);
+                        NewBillItem billItem = new NewBillItem(items.get(0));
                         billItems.add(billItem);
                         DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
                         model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
-                            billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
-                        scrollToIndex(billItems.size()-1);
+                                billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                        scrollToIndex(billItems.size() - 1);
+                    }
+                } else {
+                    ItemDialogResult ret = new MultiItemDialog(parent, barcode, items, true).run();
+                    if (ret == null) {
+                        return;
+                    }
+                    if (ret.isEnter()) {
+                        //check item in bill
+                        int index = getItemInBill(ret.item.getId());
+                        if (index >= 0) {//item existed in bill
+                            NewBillItem billitem = (NewBillItem) (billItems.get(index));
+                            float currentNumber = billitem.getNumber();
+                            billitem.updateNumber(currentNumber + 1);
+                            tableBill.setValueAt(billItems.get(index).getUnitPrice(), index, 1);
+                            tableBill.setValueAt(billItems.get(index).getNumber(), index, 2);
+                            tableBill.setValueAt(billItems.get(index).getTotalPrice(), index, 4);
+                            scrollToIndex(index);
+                        } else {//new item
+                            NewBillItem billItem = new NewBillItem(ret.item);
+                            billItems.add(billItem);
+                            DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
+                            model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                                    billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                            scrollToIndex(billItems.size() - 1);
+                        }
+                    } else if(ret.isAddNewItem()){
+                        //them hang cung ma vach
+                        String newBarcode = barcode+"_"+System.currentTimeMillis();
+                        ItemDetailDialog dialog = new ItemDetailDialog(parent, newBarcode);
+                        ret = dialog.run();
+                        if (ret != null && ret.item != null) {
+                            dataBaseManager.insertItem(ret.item);
+                            NewBillItem billItem = new NewBillItem(ret.item);
+                            billItems.add(billItem);
+                            DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
+                            model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                                    billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                            scrollToIndex(billItems.size()-1);
+                        }
                     }
                 }
+            } else {
+                ItemDetailDialog dialog = new ItemDetailDialog(parent, barcode);
+                ItemDialogResult ret = dialog.run();
+                if (ret != null) {
+                    dataBaseManager.insertItem(ret.item);
+                    NewBillItem billItem = new NewBillItem(ret.item);
+                    billItems.add(billItem);
+                    DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
+                    model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                            billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                    scrollToIndex(billItems.size() - 1);
+                }
             }
-        } else {
-            ItemDetailDialog dialog = new ItemDetailDialog(parent, barcode);
-            ItemDialogResult ret = dialog.run();
-            if (ret != null) {
-                dataBaseManager.insertItem(ret.item);
-                NewBillItem billItem = new NewBillItem(ret.item);
-                billItems.add(billItem);
-                DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
-                model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
-                    billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
-                scrollToIndex(billItems.size()-1);
-            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            barcodeReader.addBarcodeListener(this);
         }
-
-        barcodeReader.addBarcodeListener(this);
     }
 
     private void calculateTotalBill() {

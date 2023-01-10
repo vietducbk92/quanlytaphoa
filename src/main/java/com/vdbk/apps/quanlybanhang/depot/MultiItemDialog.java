@@ -198,9 +198,7 @@ public class MultiItemDialog extends JDialog {
         gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.weighty = 0;
-        if (!openInBill) {
-            panel.add(btnAddNewItem, gbc);
-        }
+        panel.add(btnAddNewItem, gbc);
 
         getContentPane().add(panel);
         pack();
