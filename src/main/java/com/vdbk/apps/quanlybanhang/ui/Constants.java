@@ -34,6 +34,6 @@ public class Constants {
     public static String STORE_PHONE_NUMBER = "Ms.Lý: 0377400834";
     public static String STORE_ADDRESS = "Châm khê-Phong Khê-TP.Bắc Ninh-BN";
     
-    public static String VERSION = "1.0.3";
+    public static String VERSION = "1.0.4";
     
 }
