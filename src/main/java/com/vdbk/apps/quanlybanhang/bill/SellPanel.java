@@ -724,8 +724,20 @@ public class SellPanel extends javax.swing.JPanel implements BarcodeReader.Barco
         if(result.isUpdateItem()){
             dataBaseManager.update(result.item);
            // onItemUpdated(result.item);
+        } else if(result.isAddNewItem()){
+            String barcode = item.getId().split("_")[0]+"_"+System.currentTimeMillis();
+            dialog = new ItemDetailDialog(parent, barcode);
+            ItemDialogResult ret = dialog.run();
+            if (ret != null && ret.item != null) {
+                dataBaseManager.insertItem(ret.item);
+                NewBillItem billItem = new NewBillItem(ret.item);
+                billItems.add(billItem);
+                DefaultTableModel model = (DefaultTableModel) tableBill.getModel();
+                model.addRow(new Object[]{billItem.getName(), billItem.getUnitPrice(),
+                        billItem.getNumber(), billItem.getUnit(), billItem.getTotalPrice()});
+                scrollToIndex(billItems.size()-1);
+            }
         }
-
     }
 
     private void showNoticeDialog(String message) {
