@@ -154,22 +154,9 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         panel.add(edtUnit, gbc);
         row++;
 
-        //insert origin price
-        label = new JLabel("Giá nhập");
-        label.setFont(Constants.FONT_CONTENT);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        panel.add(label, gbc);
-        edtOriginPrice = new JTextField(30);
-        edtOriginPrice.setFont(Constants.FONT_CONTENT);
-        gbc.gridwidth = 4;
-        gbc.gridx = 1;
-        gbc.gridy = row;
-        panel.add(edtOriginPrice, gbc);
-        row++;
+
         //gia le
-        label = new JLabel("Giá bán lẻ");
+        label = new JLabel("Giá bán");
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
@@ -184,7 +171,7 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         panel.add(edtRetailPrice, gbc);
         row++;
         //gia si
-        label = new JLabel("Bán sỉ");
+        label = new JLabel("Giá sỉ");
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
@@ -222,20 +209,35 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         panel.add(edtWholeScalePrice, gbc);
         row++;
 
+        //insert origin price
+        label = new JLabel("Giá nhập");
+        label.setFont(Constants.FONT_CONTENT);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        //panel.add(label, gbc);
+        edtOriginPrice = new JTextField(30);
+        edtOriginPrice.setFont(Constants.FONT_CONTENT);
+        gbc.gridwidth = 4;
+        gbc.gridx = 1;
+        gbc.gridy = row;
+       // panel.add(edtOriginPrice, gbc);
+       // row++;
+
         //danh muc
         label = new JLabel("Danh mục ");
         label.setFont(Constants.FONT_CONTENT);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = row;
-        panel.add(label, gbc);
+      //  panel.add(label, gbc);
         edtcategory = new JTextField(30);
         edtcategory.setFont(Constants.FONT_CONTENT);
         gbc.gridwidth = 4;
         gbc.gridx = 1;
         gbc.gridy = row;
-        panel.add(edtcategory, gbc);
-        row++;
+       // panel.add(edtcategory, gbc);
+       // row++;
 
         //ghi chu
         label = new JLabel("Ghi chú ");
@@ -243,14 +245,14 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx = 0;
         gbc.gridy = row;
-        panel.add(label, gbc);
+     //   panel.add(label, gbc);
         edtNote = new JTextField(30);
         edtNote.setFont(Constants.FONT_CONTENT);
         gbc.gridwidth = 4;
         gbc.gridx = 1;
         gbc.gridy = row;
-        panel.add(edtNote, gbc);
-        row++;
+       // panel.add(edtNote, gbc);
+       // row++;
 
         //button
         JLabel spacer = new JLabel(" ");
@@ -298,8 +300,14 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
     public void actionPerformed(ActionEvent ae) {
         Object source = ae.getSource();
         if (source == btnOk) {
-            saveItem();
-            result = new ItemDialogResult(ItemDialogResult.RESULT_UPDATE, item);
+            boolean ret = saveItem();
+            if(ret)
+                result = new ItemDialogResult(ItemDialogResult.RESULT_UPDATE, item);
+            else {
+                item = null;
+                result = new ItemDialogResult(ItemDialogResult.RESULT_NEW_ITEM, null);
+            }
+
         } else if (source == btnAddNewItemWithBarcode) {
             item = null;
             result = new ItemDialogResult(ItemDialogResult.RESULT_NEW_ITEM, null);
@@ -319,24 +327,26 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
         JOptionPane.showMessageDialog(this, message, "Chú ý", JOptionPane.WARNING_MESSAGE);
     }
 
-    private void saveItem() {
+    private boolean saveItem() {
         item = new Item();
         item.setId(barcode);
         item.setCategory(edtcategory.getText());
         if (edtName.getText().isEmpty()) {
             showNoticeDialog("Tên hàng không đươc để trống");
 
-            return;
+            return false;
         } else {
             item.setName(edtName.getText());
         }
         item.setNote(edtNote.getText());
         try {
-            item.setOriginPrice(Double.parseDouble(edtOriginPrice.getText()));
-            item.setRetailPrice(Double.parseDouble(edtRetailPrice.getText()));
+            if(edtOriginPrice.getText() != null && !edtOriginPrice.getText().isEmpty())
+                item.setOriginPrice(Double.parseDouble(edtOriginPrice.getText()));
+            if(edtRetailPrice.getText() != null && !edtRetailPrice.getText().isEmpty())
+                item.setRetailPrice(Double.parseDouble(edtRetailPrice.getText()));
         } catch (NumberFormatException | NullPointerException e) {
             showNoticeDialog("Nhập lại giá nhập/bán lẻ");
-            return;
+            return false;
         }
 
         item.setUnit(edtUnit.getText());
@@ -349,5 +359,6 @@ public class ItemDetailDialog extends JDialog implements ActionListener {
             item.setRetailMaxNumber(Integer.parseInt(edtretailMaxNumber.getText()));
         }
         item.setHasBarcode(cbxHasBarcode.isSelected() ? 1 : 0);
+        return true;
     }
 }
